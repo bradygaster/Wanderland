@@ -1,0 +1,51 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+@for (int i = 0; i < 10; i++)
+{
+    <MudGrid Spacing="2" Justify="Justify.Center">
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Lighten5}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Lighten4}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Lighten3}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Lighten2}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Lighten1}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Default}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Darken1}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Darken2}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Darken3}")'></MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Darken4}")'></MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@{
+    /*
+<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.Green.Lighten2}")' class="d-flex justify-center align-center">
+    <MudIcon Icon="@Icons.Filled.CrueltyFree" Style='@($"color:{Colors.Shades.Black}")' />
+</MudPaper>
+
+<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.Green.Lighten2}")' class="d-flex justify-center align-center">
+    <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Style='@($"color:{Colors.Shades.White}")' />
+</MudPaper>
+     */
+}
