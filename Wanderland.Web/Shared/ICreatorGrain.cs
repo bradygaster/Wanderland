@@ -6,5 +6,6 @@ namespace Wanderland.Web.Shared
     {
         Task<IWorldGrain> CreateWorld(World world);
         Task<List<World>> GetWorlds();
+        Task<bool> WorldExists(string name);
     }
 }

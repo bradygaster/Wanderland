@@ -21,13 +21,23 @@ app.SetupApp();
 // create a new world
 app.MapPost("/worlds/new", async (IGrainFactory grainFactory, int rows, int columns) =>
 {
+    if (rows > 10 || columns > 10) return Results.BadRequest("World max size is 10x10.");
+    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+
     var faker = new Faker();
     var name = $"{faker.Address.City()}".ToLower().Replace(" ", "-");
+
+    var exists = await creator.WorldExists(name);
+    if (exists) return Results.Conflict($"World with name {name} already exists.");
+
     var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = name, Rows = rows, Columns = columns });
-    return await worldGrain.GetWorld();
+    var newWorld = await worldGrain.GetWorld();
+    return Results.Created($"/worlds/{newWorld.Name}", newWorld);
 })
 .WithName("CreateNewWorld")
-.Produces<World>(StatusCodes.Status200OK);
+.Produces(StatusCodes.Status409Conflict)
+.Produces(StatusCodes.Status400BadRequest)
+.Produces<World>(StatusCodes.Status201Created);
 
 // gets a specific world by name
 app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>

@@ -45,6 +45,11 @@ namespace Wanderland.Web.Server.Grains
             return worldGrain;
         }
 
+        Task<bool> ICreatorGrain.WorldExists(string name)
+        {
+            return Task.FromResult(_worlds.State.Any(x => x == name.ToLower()));
+        }
+
         async Task<List<World>> ICreatorGrain.GetWorlds()
         {
             var result = new List<World>();
