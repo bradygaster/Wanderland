@@ -14,6 +14,12 @@ namespace Wanderland.Web.Server.Grains
             _tile = tile;
         }
 
+        async Task<Tile> ITileGrain.GetTile()
+        {
+            await _tile.ReadStateAsync();
+            return _tile.State;
+        }
+
         async Task ITileGrain.SetTileInfo(Tile tile)
         {
             _tile.State = tile;
