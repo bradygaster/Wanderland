@@ -31,10 +31,14 @@ app.MapPost("/worlds/new", async (IGrainFactory grainFactory, int rows, int colu
 
 // gets a specific world by name
 app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
-    (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == name.ToLower())
-)
+{
+    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == name.ToLower());
+    if (world == null) return Results.NotFound();
+    else return Results.Ok(world);
+})
 .WithName("GetWorld")
-.Produces<List<World>>(StatusCodes.Status200OK);
+.Produces(StatusCodes.Status404NotFound)
+.Produces<World>(StatusCodes.Status200OK);
 
 // gets all the worlds in the list
 app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
