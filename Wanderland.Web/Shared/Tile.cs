@@ -2,7 +2,8 @@
 {
     public class Tile
     {
-        public Coordinate Coordinate { get; set; }
+        public int Row { get; set; }
+        public int Column { get; set; }
         public TileType Type { get; set; } = TileType.Space;
     }
 

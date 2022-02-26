@@ -1,5 +1,4 @@
 ﻿@page "/grid/{worldName?}"
-@using Orleans
 @using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
 
@@ -12,7 +11,7 @@
         {
             int currentColumn = col;
             <MudItem>
-                <Tile Row="@currentRow" Column="@currentColumn"/>
+                <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName"/>
             </MudItem>
         }
     </MudGrid>

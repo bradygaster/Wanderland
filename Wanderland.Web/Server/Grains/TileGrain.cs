@@ -16,7 +16,6 @@ namespace Wanderland.Web.Server.Grains
 
         async Task<Tile> ITileGrain.GetTile()
         {
-            await _tile.ReadStateAsync();
             return _tile.State;
         }
 

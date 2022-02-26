@@ -12,6 +12,9 @@ namespace Wanderland.Web.Shared
 
         [Get("/worlds/{name}/tiles")]
         Task<List<Tile>> GetWorldTiles(string name);
+
+        [Get("/worlds/{name}/tiles/{row}/{column}")]
+        Task<Tile> GetTileCurrentState(string name, int row, int column);
     }
 
     public class WanderlandHttpApiClient : IWanderlandHttpApiClient
@@ -21,6 +24,11 @@ namespace Wanderland.Web.Shared
         public WanderlandHttpApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+
+        async Task<Tile> IWanderlandHttpApiClient.GetTileCurrentState(string name, int row, int column)
+        {
+            return await RestService.For<IWanderlandHttpApiClient>(_httpClient).GetTileCurrentState(name, row, column);
         }
 
         async Task<World> IWanderlandHttpApiClient.GetWorld(string name)

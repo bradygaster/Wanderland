@@ -9,7 +9,7 @@ namespace Wanderland.Web.Server.Grains
         IGrainFactory _grainFactory;
         IPersistentState<List<string>> _worlds;
 
-        public CreatorGrain(IGrainFactory grainFactory, 
+        public CreatorGrain(IGrainFactory grainFactory,
             [PersistentState(Constants.PersistenceKeys.WorldListStateName, Constants.PersistenceKeys.WorldListStorageName)]
             IPersistentState<List<string>> worlds
             )
@@ -20,7 +20,7 @@ namespace Wanderland.Web.Server.Grains
 
         async Task<IWorldGrain> ICreatorGrain.CreateWorld(World world)
         {
-            if(!_worlds.State.Any(x => x.ToLower() == world.Name.ToLower()))
+            if (!_worlds.State.Any(x => x.ToLower() == world.Name.ToLower()))
             {
                 _worlds.State.Add(world.Name);
             }
@@ -36,7 +36,8 @@ namespace Wanderland.Web.Server.Grains
                 {
                     await worldGrain.MakeTile(new Tile
                     {
-                        Coordinate = new Coordinate(row, col),
+                        Row = row,
+                        Column = col,
                         Type = TileType.Space
                     });
                 }

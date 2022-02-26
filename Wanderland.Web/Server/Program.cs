@@ -80,4 +80,21 @@ app.MapGet("/worlds/{name}/tiles", async (IGrainFactory grainFactory, string nam
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
 
+// gets a tile's detail
+app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFactory, string name, int row, int column) =>
+{
+    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+    name = name.ToLower();
+
+    if (!await creator.WorldExists(name))
+        return Results.NotFound($"World {name} was not found.");
+
+    var tileGrain = grainFactory.GetGrain<ITileGrain>($"{name}/{row}/{column}");
+    var tile = await tileGrain.GetTile();
+    return Results.Ok(tile);
+})
+.WithName("GetTileCurrentState")
+.Produces(StatusCodes.Status404NotFound)
+.Produces<Tile>(StatusCodes.Status200OK);
+
 app.Run();

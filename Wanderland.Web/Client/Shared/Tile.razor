@@ -1,4 +1,7 @@
-﻿<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}")</MudPaper>
+﻿@using Wanderland.Web.Shared
+@inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
+
+<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")</MudPaper>
 
 @code {
     [Parameter]
@@ -6,4 +9,22 @@
 
     [Parameter]
     public int Column { get; set; }
+
+    [Parameter]
+    public string? WorldName { get; set; }
+
+    private TileType TileType;
+    private bool shouldRender = false;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(WorldName))
+        {
+            var tile = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
+            TileType = tile.Type;
+            shouldRender = true;
+        }
+    }
 }
