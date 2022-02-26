@@ -1,7 +1,7 @@
 ﻿@page "/grid/{worldName?}"
 @using Orleans
 @using Wanderland.Web.Shared
-@inject HttpClient http
+@inject IWanderlandHttpApiClient _apiClient
 
 <h2>@World.Name</h2>
 @for (int row = 0; row < World.Rows; row++)
@@ -31,8 +31,7 @@
         Console.WriteLine($"Requesting World {WorldName}.");
         if (!string.IsNullOrEmpty(WorldName))
         {
-            IWanderlandHttpApiClient apiClient = new WanderlandHttpApiClient(http);
-            World = await apiClient.GetWorld(WorldName);
+            World = await _apiClient.GetWorld(WorldName);
             Console.WriteLine($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
             shouldRender = true;
         }

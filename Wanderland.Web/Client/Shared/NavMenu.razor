@@ -1,16 +1,16 @@
 ﻿@using Wanderland.Web.Shared
-@inject HttpClient http
+@inject IWanderlandHttpApiClient _apiClient
 
 <MudNavMenu>
+    <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
+        @foreach (var world in _worlds)
+        {
+            <MudNavLink Href="@($"/{world}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@world</MudNavLink>
+        }
+    </MudNavGroup>
     <MudNavLink Href="/swagger" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Api">Swagger UI</MudNavLink>
     <MudNavLink Href="http://localhost:8080" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AreaChart">Orleans Dashboard</MudNavLink>
-    <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
-    @foreach (var world in _worlds)
-    {
-        <MudNavLink Href="@($"/{world}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@world</MudNavLink>
-    }
-    </MudNavGroup>
-    
+
 </MudNavMenu>
 
 @code
@@ -19,8 +19,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IWanderlandHttpApiClient apiClient = new WanderlandHttpApiClient(http);
-        _worlds = (await apiClient.GetWorlds()).Select(x => x.Name).ToList();
+        _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
 
         await base.OnInitializedAsync();
     }
