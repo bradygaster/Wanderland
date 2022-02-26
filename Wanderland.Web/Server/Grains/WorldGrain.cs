@@ -22,8 +22,7 @@ namespace Wanderland.Web.Server.Grains
 
         async Task<ITileGrain> IWorldGrain.MakeTile(Tile tile)
         {
-            string grainKey = $"{_world.State.Name}/{tile.Coordinate.Row}/{tile.Coordinate.Column}";
-            var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
+            ITileGrain tileGrain = GetTileGrain(tile.Coordinate);
             await tileGrain.SetTileInfo(tile);
             return tileGrain;
         }
@@ -32,6 +31,13 @@ namespace Wanderland.Web.Server.Grains
         {
             _world.State = world;
             await _world.WriteStateAsync();
+        }
+
+        private ITileGrain GetTileGrain(Coordinate coordinate)
+        {
+            string grainKey = $"{_world.State.Name}/{coordinate.Row}/{coordinate.Column}";
+            var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
+            return tileGrain;
         }
     }
 }

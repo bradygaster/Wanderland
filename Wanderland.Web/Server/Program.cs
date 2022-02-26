@@ -50,6 +50,29 @@ app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
 
+// gets all the tiles for a specific world
+app.MapGet("/worlds/{name}/tiles", async (IGrainFactory grainFactory, string name) =>
+{
+    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == name.ToLower());
+    if (world == null) return Results.NotFound();
+    var tiles = new List<Tile>();
+
+    for (int row = 0; row < world.Rows; row++)
+    {
+        for (int col = 0; col < world.Columns; col++)
+        {
+            string grainKey = $"{world.Name}/{row}/{col}";
+            var tileGrain = grainFactory.GetGrain<ITileGrain>(grainKey);
+            tiles.Add(await tileGrain.GetTile());
+        }
+    }
+
+    return Results.Ok(tiles);
+})
+.WithName("GetWorldTiles")
+.Produces(StatusCodes.Status404NotFound)
+.Produces<World>(StatusCodes.Status200OK);
+
 // gets all the worlds in the list
 app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
     await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()
