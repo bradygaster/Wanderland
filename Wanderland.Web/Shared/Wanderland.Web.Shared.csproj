@@ -12,6 +12,7 @@
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	  <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.6.0" />
+	  <PackageReference Include="Refit" Version="6.3.2" />
 	</ItemGroup>
 
 	<ItemGroup>
