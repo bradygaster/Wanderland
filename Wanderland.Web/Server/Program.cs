@@ -19,7 +19,7 @@ var app = builder.Build();
 app.SetupApp();
 
 // create a new world
-app.MapPost("/worlds/new", async (IGrainFactory grainFactory, int rows, int columns) =>
+app.MapPost("/worlds", async (IGrainFactory grainFactory, int rows, int columns) =>
 {
     if (rows > 10 || columns > 10) return Results.BadRequest("World max size is 10x10.");
     var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
@@ -38,6 +38,13 @@ app.MapPost("/worlds/new", async (IGrainFactory grainFactory, int rows, int colu
 .Produces(StatusCodes.Status409Conflict)
 .Produces(StatusCodes.Status400BadRequest)
 .Produces<World>(StatusCodes.Status201Created);
+
+// gets all the worlds in the list
+app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
+    await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()
+)
+.WithName("GetWorlds")
+.Produces<List<World>>(StatusCodes.Status200OK);
 
 // gets a specific world by name
 app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
@@ -72,12 +79,5 @@ app.MapGet("/worlds/{name}/tiles", async (IGrainFactory grainFactory, string nam
 .WithName("GetWorldTiles")
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
-
-// gets all the worlds in the list
-app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
-    await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()
-)
-.WithName("GetWorlds")
-.Produces<List<World>>(StatusCodes.Status200OK);
 
 app.Run();

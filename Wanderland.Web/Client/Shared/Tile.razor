@@ -1,0 +1,9 @@
+﻿<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}")</MudPaper>
+
+@code {
+    [Parameter]
+    public int Row { get; set; }
+
+    [Parameter]
+    public int Column { get; set; }
+}

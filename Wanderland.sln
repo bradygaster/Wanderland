@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32119.435
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wanderland.Web.Client", "Wanderland.Web\Client\Wanderland.Web.Client.csproj", "{D3617CC8-6324-41C7-8FCB-570C497BE42E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wanderland.Web.Client", "Wanderland.Web\Client\Wanderland.Web.Client.csproj", "{D3617CC8-6324-41C7-8FCB-570C497BE42E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wanderland.Web.Server", "Wanderland.Web\Server\Wanderland.Web.Server.csproj", "{CE5E6E8C-A80B-4E6A-B039-652A53B88B0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wanderland.Web.Server", "Wanderland.Web\Server\Wanderland.Web.Server.csproj", "{CE5E6E8C-A80B-4E6A-B039-652A53B88B0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wanderland.Web.Shared", "Wanderland.Web\Shared\Wanderland.Web.Shared.csproj", "{C408604F-349F-4E33-BE11-4EA776FDCF38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wanderland.Web.Shared", "Wanderland.Web\Shared\Wanderland.Web.Shared.csproj", "{C408604F-349F-4E33-BE11-4EA776FDCF38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

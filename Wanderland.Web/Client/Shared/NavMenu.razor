@@ -7,7 +7,7 @@
     <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
     @foreach (var world in _worlds)
     {
-        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@world</MudNavLink>
+        <MudNavLink Href="@($"/{world}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@world</MudNavLink>
     }
     </MudNavGroup>
     
@@ -19,7 +19,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var apiClient = new WanderlandHttpApiClient(http);
+        IWanderlandHttpApiClient apiClient = new WanderlandHttpApiClient(http);
         _worlds = (await apiClient.GetWorlds()).Select(x => x.Name).ToList();
 
         await base.OnInitializedAsync();
