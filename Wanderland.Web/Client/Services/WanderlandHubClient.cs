@@ -38,7 +38,6 @@ namespace Wanderland.Web.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
             }
         }
 
@@ -48,8 +47,6 @@ namespace Wanderland.Web.Client.Services
             {
                 TileUpdate(this, new TileUpdatedEventArgs { Tile = tile });
             }
-
-            Console.WriteLine("TileUpdated");
             return Task.CompletedTask;
         }
 
@@ -59,8 +56,6 @@ namespace Wanderland.Web.Client.Services
             {
                 WorldListUpdate(this, new WorldListUpdatedEventArgs());
             }
-
-            Console.WriteLine("WorldListUpdated");
             return Task.CompletedTask;
         }
     }

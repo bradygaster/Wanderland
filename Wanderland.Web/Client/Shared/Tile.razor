@@ -2,9 +2,22 @@
 @inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
 @inject Wanderland.Web.Client.Services.WanderlandHubClient _hubClient
 
-<MudPaper Height="80px" 
-          Width="80px" 
-          Style='@($"background:{GetColorForTile()}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")
+<MudPaper Height="80px"
+          Width="80px"
+          Style='@($"background:{GetColorForTile()}")'>
+    <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
+        @if (Model != null)
+        {
+            @foreach (var wanderer in Model.WanderersHere)
+            {
+                var text = wanderer.First();
+                <MudBadge Color="Color.Success" Icon="@Icons.Material.Filled.DirectionsWalk" Overlap="true" Bordered="true">
+                    <MudAvatar Color="Color.Info" Size="Size.Small">@text</MudAvatar>
+                </MudBadge>
+            }
+        }
+
+    </MudAvatarGroup>
 </MudPaper>
 
 @code {
@@ -17,17 +30,27 @@
     [Parameter]
     public string? WorldName { get; set; }
 
-    private Wanderland.Web.Shared.Tile Model { get; set;  }
+    private Wanderland.Web.Shared.Tile Model { get; set; }
     private TileType TileType;
     private bool shouldRender = false;
 
     protected override bool ShouldRender() => shouldRender;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
             Model = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
+            _hubClient.TileUpdate += (s, args) =>
+            {
+                if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
+                {
+                    Model = args.Tile;
+                    Console.WriteLine($"Tile {Model.Row}/{Model.Column} has {Model.WanderersHere.Count} wanderer(s).");
+                    base.StateHasChanged();
+                }
+
+            };
             TileType = Model.Type;
             shouldRender = true;
         }
