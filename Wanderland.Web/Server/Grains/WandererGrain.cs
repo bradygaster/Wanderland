@@ -62,7 +62,7 @@ namespace Wanderland.Web.Server.Grains
             // can the wanderer move north?
             var isTileSouthOfMeAvailable = async () =>
             {
-                if (!(Wanderer.State.CurrentLocation.Row < world.Rows)) return false;
+                if (!(Wanderer.State.CurrentLocation.Row < world.Rows - 1)) return false;
                 var tileSouth = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row + 1}/{Wanderer.State.CurrentLocation.Column}").GetTile();
                 return tileSouth.Type == TileType.Space;
             };
@@ -70,7 +70,7 @@ namespace Wanderland.Web.Server.Grains
             // can the wanderer move east?
             var isTileEastOfMeAvailable = async () =>
             {
-                if (!(Wanderer.State.CurrentLocation.Column < world.Columns)) return false;
+                if (!(Wanderer.State.CurrentLocation.Column < world.Columns - 1)) return false;
                 var tileEast = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column + 1}").GetTile();
                 return tileEast.Type == TileType.Space;
             };
