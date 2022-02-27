@@ -27,7 +27,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Console.WriteLine($"Requesting World {WorldName}.");
         if (!string.IsNullOrEmpty(WorldName))
         {
             World = await _apiClient.GetWorld(WorldName);
