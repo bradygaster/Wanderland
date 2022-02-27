@@ -22,12 +22,17 @@ namespace Wanderland.Web.Server.Grains
             return Task.FromResult(Wanderer.State);
         }
 
+        private TimeSpan GetMoveDuration()
+        {
+            return TimeSpan.FromMilliseconds(1000);
+        }
+
         public override async Task OnActivateAsync()
         {
             RegisterTimer(async _ =>
                 {
                     await Wander();
-                }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+                }, null, GetMoveDuration(), GetMoveDuration());
 
             await base.OnActivateAsync();
         }

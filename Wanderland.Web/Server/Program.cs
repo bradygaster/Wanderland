@@ -115,4 +115,36 @@ app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFact
 .Produces(StatusCodes.Status404NotFound)
 .Produces<Tile>(StatusCodes.Status200OK);
 
+// create an entire world in one request
+app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactory grainFactory, 
+    string worldName, 
+    int rows, 
+    int columns, 
+    int wanderers) =>
+{
+    if (rows > 10 || columns > 10) return Results.BadRequest("World max size is 10x10.");
+    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+
+    var exists = await creator.WorldExists(worldName);
+    if (exists) return Results.Conflict($"World with name {worldName} already exists.");
+
+    var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
+    var newWorld = await worldGrain.GetWorld();
+
+    var faker = new Faker();
+    for (int i = 0; i < wanderers; i++)
+    {
+        string wandererName = new Faker().Person.FirstName;
+        var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+        var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+        await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+    }
+
+    return Results.Ok(newWorld);
+})
+.WithName("CreateWholeWorldDemo")
+.Produces(StatusCodes.Status400BadRequest)
+.Produces(StatusCodes.Status404NotFound)
+.Produces<World>(StatusCodes.Status200OK);
+
 app.Run();
