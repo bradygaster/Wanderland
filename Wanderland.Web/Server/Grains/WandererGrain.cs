@@ -17,9 +17,9 @@ namespace Wanderland.Web.Server.Grains
         public IPersistentState<Wanderer> Wanderer { get; }
         public ILogger<WandererGrain> Logger { get; }
 
-        public async Task<Wanderer> GetWanderer()
+        public Task<Wanderer> GetWanderer()
         {
-            return Wanderer.State;
+            return Task.FromResult(Wanderer.State);
         }
 
         public override async Task OnActivateAsync()

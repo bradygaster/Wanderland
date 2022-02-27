@@ -18,7 +18,7 @@ namespace Wanderland.Web.Server.Grains
             Logger = logger;
         }
 
-        async Task ITileGrain.Arrives(IWanderGrain wanderer)
+        Task ITileGrain.Arrives(IWanderGrain wanderer)
         {
             var wandererName = wanderer.GetPrimaryKeyString();
             if(!Tile.State.WanderersHere.Any(x => x.GetPrimaryKeyString() == wandererName))
@@ -26,9 +26,11 @@ namespace Wanderland.Web.Server.Grains
                 Tile.State.WanderersHere.Add(wanderer);
                 Logger.LogInformation($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
             }
+
+            return Task.CompletedTask;
         }
 
-        async Task ITileGrain.Leaves(IWanderGrain wanderer)
+        Task ITileGrain.Leaves(IWanderGrain wanderer)
         {
             var wandererName = wanderer.GetPrimaryKeyString();
             if (Tile.State.WanderersHere.Any(x => x.GetPrimaryKeyString() == wandererName))
@@ -36,16 +38,19 @@ namespace Wanderland.Web.Server.Grains
                 Tile.State.WanderersHere.Remove(wanderer);
                 Logger.LogInformation($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
             }
+
+            return Task.CompletedTask;
         }
 
-        async Task<Tile> ITileGrain.GetTile()
+        Task<Tile> ITileGrain.GetTile()
         {
-            return Tile.State;
+            return Task.FromResult(Tile.State);
         }
 
-        async Task ITileGrain.SetTileInfo(Tile tile)
+        Task ITileGrain.SetTileInfo(Tile tile)
         {
             Tile.State = tile;
+            return Task.CompletedTask;
         }
     }
 }

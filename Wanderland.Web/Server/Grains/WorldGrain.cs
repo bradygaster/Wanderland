@@ -14,9 +14,9 @@ namespace Wanderland.Web.Server.Grains
             _world = world;
         }
 
-        async Task<World> IWorldGrain.GetWorld()
+        Task<World> IWorldGrain.GetWorld()
         {
-            return _world.State;
+            return Task.FromResult(_world.State);
         }
 
         async Task<ITileGrain> IWorldGrain.MakeTile(Tile tile)
@@ -27,9 +27,10 @@ namespace Wanderland.Web.Server.Grains
             return tileGrain;
         }
 
-        async Task IWorldGrain.SetWorld(World world)
+        Task IWorldGrain.SetWorld(World world)
         {
             _world.State = world;
+            return Task.CompletedTask;
         }
     }
 }
