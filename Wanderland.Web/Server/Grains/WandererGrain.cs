@@ -5,7 +5,6 @@ using Wanderland.Web.Shared;
 namespace Wanderland.Web.Server.Grains
 {
     public class WandererGrain : Grain, IWanderGrain
-        // , IRemindable
     {
         public WandererGrain([PersistentState(Constants.PersistenceKeys.WandererStateName, Constants.PersistenceKeys.WandererStorageName)]
             IPersistentState<Wanderer> wanderer, ILogger<WandererGrain> logger)
@@ -19,6 +18,7 @@ namespace Wanderland.Web.Server.Grains
 
         public Task<Wanderer> GetWanderer()
         {
+            Wanderer.State.Name = this.GetPrimaryKeyString();
             return Task.FromResult(Wanderer.State);
         }
 
@@ -34,6 +34,7 @@ namespace Wanderland.Web.Server.Grains
 
         public async Task SetLocation(ITileGrain tileGrain)
         {
+            Wanderer.State.Name = this.GetPrimaryKeyString();
             Wanderer.State.CurrentLocation = await tileGrain.GetTile();
             await tileGrain.Arrives(this);
         }
@@ -43,8 +44,8 @@ namespace Wanderland.Web.Server.Grains
             var world = await GrainFactory.GetGrain<IWorldGrain>(Wanderer.State.CurrentLocation.World).GetWorld();
 
             bool canMoveUp = (Wanderer.State.CurrentLocation.Row > 0);
-            bool canMoveRight = (Wanderer.State.CurrentLocation.Column < (world.Columns - 1));
-            bool canMoveDown = (Wanderer.State.CurrentLocation.Row < (world.Rows - 1));
+            bool canMoveRight = (Wanderer.State.CurrentLocation.Column < world.Columns);
+            bool canMoveDown = (Wanderer.State.CurrentLocation.Row < world.Rows);
             bool canMoveLeft = (Wanderer.State.CurrentLocation.Column > 0);
             var currentTileGrain = GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}");
             var options = new List<string>();
@@ -74,8 +75,8 @@ namespace Wanderland.Web.Server.Grains
 
             Logger.LogInformation($"{this.GetPrimaryKeyString()}'s next Tile ID is {nextTileGrainId}.");
             var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
-            await SetLocation(nextTileGrain);
             await currentTileGrain.Leaves(this);
+            await SetLocation(nextTileGrain);
         }
     }
 }

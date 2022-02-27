@@ -40,7 +40,7 @@ namespace Wanderland.Web.Server.Grains
                         {
                             Row = row,
                             Column = col,
-                            Type = TileType.Space,
+                            Type = CalculateTileTypeBasedOnWorldSize(world.Rows, world.Columns),
                             World = world.Name
                         });
                     }
@@ -51,6 +51,12 @@ namespace Wanderland.Web.Server.Grains
             }
 
             return null;
+        }
+
+        TileType CalculateTileTypeBasedOnWorldSize(int rows, int cols)
+        {
+            var rndint = new Random().Next(1, 12);
+            return (rndint % 4 == 0) ? TileType.Barrier : TileType.Space;
         }
 
         Task<bool> ICreatorGrain.WorldExists(string name)

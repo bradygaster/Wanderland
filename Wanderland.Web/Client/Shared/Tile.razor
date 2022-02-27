@@ -1,9 +1,10 @@
 ﻿@using Wanderland.Web.Shared
 @inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
+@inject Wanderland.Web.Client.Services.WanderlandHubClient _hubClient
 
 <MudPaper Height="80px" 
           Width="80px" 
-          Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")
+          Style='@($"background:{GetColorForTile()}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")
 </MudPaper>
 
 @code {
@@ -16,6 +17,7 @@
     [Parameter]
     public string? WorldName { get; set; }
 
+    private Wanderland.Web.Shared.Tile Model { get; set;  }
     private TileType TileType;
     private bool shouldRender = false;
 
@@ -25,9 +27,17 @@
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
-            var tile = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
-            TileType = tile.Type;
+            Model = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
+            TileType = Model.Type;
             shouldRender = true;
         }
+    }
+
+    protected string GetColorForTile()
+    {
+        if (Model?.Type == TileType.Barrier)
+            return Colors.BlueGrey.Darken4;
+
+        return Colors.BlueGrey.Default;
     }
 }
