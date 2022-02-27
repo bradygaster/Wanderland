@@ -16,7 +16,6 @@ namespace Wanderland.Web.Server.Grains
 
         async Task<World> IWorldGrain.GetWorld()
         {
-            await _world.ReadStateAsync();
             return _world.State;
         }
 
@@ -31,7 +30,6 @@ namespace Wanderland.Web.Server.Grains
         async Task IWorldGrain.SetWorld(World world)
         {
             _world.State = world;
-            await _world.WriteStateAsync();
         }
     }
 }

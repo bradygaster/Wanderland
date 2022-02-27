@@ -10,6 +10,8 @@
             public const string WorldStorageName = "worldStorage";
             public const string TileStateName = "tile";
             public const string TileStorageName = "tileStorage";
+            public const string WandererStateName = "wanderer";
+            public const string WandererStorageName = "wandererStorage";
         }
     }
 }

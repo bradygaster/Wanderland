@@ -25,8 +25,6 @@ namespace Wanderland.Web.Server.Grains
                 _worlds.State.Add(world.Name);
             }
 
-            await _worlds.WriteStateAsync();
-
             var worldGrain = _grainFactory.GetGrain<IWorldGrain>(world.Name.ToLower());
             await worldGrain.SetWorld(world);
 
@@ -38,7 +36,8 @@ namespace Wanderland.Web.Server.Grains
                     {
                         Row = row,
                         Column = col,
-                        Type = TileType.Space
+                        Type = TileType.Space,
+                        World = world.Name
                     });
                 }
             }

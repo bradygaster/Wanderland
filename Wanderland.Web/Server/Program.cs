@@ -9,9 +9,11 @@ builder.SetupServices();
 builder.Host.UseOrleans(siloBuilder =>
 {
     siloBuilder.UseLocalhostClustering();
+    siloBuilder.UseInMemoryReminderService();
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldListStorageName);
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldStorageName);
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
+    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
     siloBuilder.UseDashboard();
 });
 
@@ -56,6 +58,22 @@ app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 .WithName("GetWorld")
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
+
+// creates a new wanderer in the world
+app.MapPost("/worlds/{worldName}/wanderers/{wandererName}", async (IGrainFactory grainFactory, string worldName, string wandererName) =>
+{
+    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
+    if (world == null) return Results.NotFound();
+
+    var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+    var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
+    await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+
+    return Results.Ok(await newWandererGrain.GetWanderer());
+})
+.WithName("CreateWanderer")
+.Produces(StatusCodes.Status404NotFound)
+.Produces<Wanderer>(StatusCodes.Status200OK);
 
 // gets all the tiles for a specific world
 app.MapGet("/worlds/{name}/tiles", async (IGrainFactory grainFactory, string name) =>
