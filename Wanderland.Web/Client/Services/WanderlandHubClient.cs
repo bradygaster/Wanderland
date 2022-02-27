@@ -15,6 +15,7 @@ namespace Wanderland.Web.Client.Services
         private Uri BaseUri { get; set; }
         private Uri HubUri { get; set; }
         public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
+        public event EventHandler<TileUpdatedEventArgs> TileUpdate;
 
         public async Task Start()
         {
@@ -29,6 +30,7 @@ namespace Wanderland.Web.Client.Services
             };
 
             Connection.On("WorldListUpdated", WorldListUpdated);
+            Connection.On<Tile>("TileUpdated", TileUpdated);
 
             try
             {
@@ -38,6 +40,17 @@ namespace Wanderland.Web.Client.Services
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        public Task TileUpdated(Tile tile)
+        {
+            if (TileUpdate != null)
+            {
+                TileUpdate(this, new TileUpdatedEventArgs { Tile = tile });
+            }
+
+            Console.WriteLine("TileUpdated");
+            return Task.CompletedTask;
         }
 
         public Task WorldListUpdated()

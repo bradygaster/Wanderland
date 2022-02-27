@@ -9,5 +9,9 @@ namespace Wanderland.Web.Server.Hubs
         {
             await Clients.All.WorldListUpdated();
         }
+        public async Task UpdateTile(Tile tile)
+        {
+            await Clients.All.TileUpdated(tile);
+        }
     }
 }

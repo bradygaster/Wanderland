@@ -9,7 +9,7 @@ namespace Wanderland.Web.Server.Grains
     public class CreatorGrain : Grain, ICreatorGrain
     {
         public IPersistentState<List<string>> Worlds { get; }
-        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHub { get; }
+        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
 
         public CreatorGrain([PersistentState(Constants.PersistenceKeys.WorldListStateName, Constants.PersistenceKeys.WorldListStorageName)]
             IPersistentState<List<string>> worlds,
@@ -17,7 +17,7 @@ namespace Wanderland.Web.Server.Grains
             )
         {
             Worlds = worlds;
-            WanderlandHub = wanderlandHub;
+            WanderlandHubContext = wanderlandHub;
         }
 
         async Task<IWorldGrain?> ICreatorGrain.CreateWorld(World world)
@@ -46,7 +46,7 @@ namespace Wanderland.Web.Server.Grains
                     }
                 }
 
-                await WanderlandHub.Clients.All.WorldListUpdated();
+                await WanderlandHubContext.Clients.All.WorldListUpdated();
                 return worldGrain;
             }
 
