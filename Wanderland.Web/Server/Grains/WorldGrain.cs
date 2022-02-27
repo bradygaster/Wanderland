@@ -6,7 +6,7 @@ namespace Wanderland.Web.Server.Grains
 {
     public class WorldGrain : Grain, IWorldGrain
     {
-        IPersistentState<World> _world;
+        readonly IPersistentState<World> _world;
 
         public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName, Constants.PersistenceKeys.WorldStorageName)]
             IPersistentState<World> world)

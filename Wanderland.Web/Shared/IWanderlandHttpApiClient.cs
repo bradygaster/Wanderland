@@ -19,7 +19,7 @@ namespace Wanderland.Web.Shared
 
     public class WanderlandHttpApiClient : IWanderlandHttpApiClient
     {
-        HttpClient _httpClient;
+        readonly HttpClient _httpClient;
 
         public WanderlandHttpApiClient(HttpClient httpClient)
         {

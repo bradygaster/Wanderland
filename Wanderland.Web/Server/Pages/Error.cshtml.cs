@@ -13,15 +13,15 @@ namespace Wanderland.Web.Server.Pages
     [IgnoreAntiforgeryToken]
     public class ErrorModel : PageModel
     {
-        public string RequestId { get; set; }
+        public string RequestId { get; set; } = string.Empty;
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        private readonly ILogger<ErrorModel> _logger;
+        public ILogger<ErrorModel> Logger { get; }
 
         public ErrorModel(ILogger<ErrorModel> logger)
         {
-            _logger = logger;
+            Logger = logger;
         }
 
         public void OnGet()

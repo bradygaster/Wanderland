@@ -1,7 +1,10 @@
 ﻿@using Wanderland.Web.Shared
 @inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
 
-<MudPaper Height="80px" Width="80px" Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")</MudPaper>
+<MudPaper Height="80px" 
+          Width="80px" 
+          Style='@($"background:{Colors.BlueGrey.Default}")'>@($"Row: {Row}, Column: {Column}, Type: {TileType}")
+</MudPaper>
 
 @code {
     [Parameter]
