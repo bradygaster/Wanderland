@@ -14,7 +14,7 @@ namespace Wanderland.Web.Client.Services
         private HubConnection Connection { get; set; }
         private Uri BaseUri { get; set; }
         private Uri HubUri { get; set; }
-        public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdated;
+        public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
 
         public async Task Start()
         {
@@ -28,7 +28,7 @@ namespace Wanderland.Web.Client.Services
                 await Connection.StartAsync();
             };
 
-            Connection.On("WorldListUpdated", OnWorldListUpdated);
+            Connection.On("WorldListUpdated", WorldListUpdated);
 
             try
             {
@@ -40,12 +40,14 @@ namespace Wanderland.Web.Client.Services
             }
         }
 
-        public Task OnWorldListUpdated()
+        public Task WorldListUpdated()
         {
-            if (WorldListUpdated != null)
+            if (WorldListUpdate != null)
             {
-                WorldListUpdated(this, new WorldListUpdatedEventArgs());
+                WorldListUpdate(this, new WorldListUpdatedEventArgs());
             }
+
+            Console.WriteLine("WorldListUpdated");
             return Task.CompletedTask;
         }
     }

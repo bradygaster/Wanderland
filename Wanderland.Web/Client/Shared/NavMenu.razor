@@ -1,6 +1,7 @@
-﻿@using Wanderland.Web.Shared
+﻿@using Wanderland.Web.Client.Services
+@using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
-@inject IWanderlandHubClient _hubClient
+@inject WanderlandHubClient _hubClient
 
 <MudNavMenu>
     <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
@@ -21,7 +22,7 @@
     protected override async Task OnInitializedAsync()
     {
         var getWorlds = async () => _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
-        _hubClient.WorldListUpdated += (s, e) => getWorlds();
+        _hubClient.WorldListUpdate += (s, e) => getWorlds();
 
         await base.OnInitializedAsync();
     }

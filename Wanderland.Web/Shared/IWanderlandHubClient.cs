@@ -3,8 +3,7 @@
     public interface IWanderlandHubClient
     {
         Task Start();
-        Task OnWorldListUpdated();
-        event EventHandler<WorldListUpdatedEventArgs> WorldListUpdated;
+        Task WorldListUpdated();
     }
 
     public class WorldListUpdatedEventArgs
