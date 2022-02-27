@@ -1,4 +1,7 @@
-﻿namespace Wanderland.Web.Server
+﻿using Wanderland.Web.Server.Hubs;
+using Wanderland.Web.Shared;
+
+namespace Wanderland.Web.Server
 {
     internal static class SetupModule
     {
@@ -7,6 +10,7 @@
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddRazorPages();
+            builder.Services.AddSignalR();
 
             return builder;
         }
@@ -31,6 +35,7 @@
             app.UseStaticFiles();
             app.UseRouting();
             app.MapRazorPages();
+            app.MapHub<WanderlandHub>($"/{Constants.Routes.WanderlandSignalRHubRoute}");
             app.MapFallbackToFile("index.html");
 
             return app;

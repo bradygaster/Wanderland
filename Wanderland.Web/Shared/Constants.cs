@@ -13,5 +13,10 @@
             public const string WandererStateName = "wanderer";
             public const string WandererStorageName = "wandererStorage";
         }
+
+        public static class Routes
+        {
+            public const string WanderlandSignalRHubRoute = "hubs/wanderland";
+        }
     }
 }

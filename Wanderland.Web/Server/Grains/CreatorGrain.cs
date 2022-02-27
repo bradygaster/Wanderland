@@ -1,5 +1,7 @@
-﻿using Orleans;
+﻿using Microsoft.AspNetCore.SignalR;
+using Orleans;
 using Orleans.Runtime;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
@@ -7,12 +9,15 @@ namespace Wanderland.Web.Server.Grains
     public class CreatorGrain : Grain, ICreatorGrain
     {
         public IPersistentState<List<string>> Worlds { get; }
+        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHub { get; }
 
         public CreatorGrain([PersistentState(Constants.PersistenceKeys.WorldListStateName, Constants.PersistenceKeys.WorldListStorageName)]
-            IPersistentState<List<string>> worlds
+            IPersistentState<List<string>> worlds,
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub
             )
         {
             Worlds = worlds;
+            WanderlandHub = wanderlandHub;
         }
 
         async Task<IWorldGrain?> ICreatorGrain.CreateWorld(World world)
@@ -41,6 +46,7 @@ namespace Wanderland.Web.Server.Grains
                     }
                 }
 
+                await WanderlandHub.Clients.All.WorldListUpdated();
                 return worldGrain;
             }
 

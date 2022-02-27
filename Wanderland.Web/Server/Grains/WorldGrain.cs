@@ -1,27 +1,32 @@
-﻿using Orleans;
+﻿using Microsoft.AspNetCore.SignalR;
+using Orleans;
 using Orleans.Runtime;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
     public class WorldGrain : Grain, IWorldGrain
     {
-        readonly IPersistentState<World> _world;
-
         public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName, Constants.PersistenceKeys.WorldStorageName)]
-            IPersistentState<World> world)
+            IPersistentState<World> world,
+            IHubContext<WanderlandHub> wanderlandHub)
         {
-            _world = world;
+            World = world;
+            WanderlandHub = wanderlandHub;
         }
+
+        public IPersistentState<World> World { get; }
+        public IHubContext<WanderlandHub> WanderlandHub { get; }
 
         Task<World> IWorldGrain.GetWorld()
         {
-            return Task.FromResult(_world.State);
+            return Task.FromResult(World.State);
         }
 
         async Task<ITileGrain> IWorldGrain.MakeTile(Tile tile)
         {
-            string grainKey = $"{_world.State.Name}/{tile.Row}/{tile.Column}";
+            string grainKey = $"{World.State.Name}/{tile.Row}/{tile.Column}";
             var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
             await tileGrain.SetTileInfo(tile);
             return tileGrain;
@@ -29,7 +34,7 @@ namespace Wanderland.Web.Server.Grains
 
         Task IWorldGrain.SetWorld(World world)
         {
-            _world.State = world;
+            World.State = world;
             return Task.CompletedTask;
         }
     }

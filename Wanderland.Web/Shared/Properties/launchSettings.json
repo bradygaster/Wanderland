@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Wanderland.Web.Shared": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:64831;http://localhost:64832"
+    }
+  }
+}
