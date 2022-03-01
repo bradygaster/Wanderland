@@ -10,50 +10,40 @@ namespace Wanderland.Web.Server.Grains
     {
         private IPersistentState<List<SignalRConnectionToWorldMap>> GroupMemberships { get; }
         private IHubContext<WanderlandHub> WanderlandHub { get; }
+        private ILogger<SignalRGroupMembershipGrain> Logger { get; }
 
         public SignalRGroupMembershipGrain(
             [PersistentState(Constants.PersistenceKeys.GroupStateName, Constants.PersistenceKeys.GroupStorageName)]
             IPersistentState<List<SignalRConnectionToWorldMap>> groupMemberships,
-            IHubContext<WanderlandHub> wanderlandHub)
+            IHubContext<WanderlandHub> wanderlandHub,
+            ILogger<SignalRGroupMembershipGrain> logger)
         {
             GroupMemberships = groupMemberships;
             WanderlandHub = wanderlandHub;
+            Logger = logger;
         }
 
         public async Task ChangeClientWorldGroupMembership(string connectionId, string worldName)
         {
-            if(GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
-            {
-                var currentWorld = await GetCurrentWorldForConnectionId(connectionId);
-                if(currentWorld != worldName)
-                {
-                    await WanderlandHub.Groups.RemoveFromGroupAsync(connectionId, currentWorld);
-                }
-                GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
-            }
-
+            await ClientDisconnects(connectionId);
+            Logger.LogInformation($"Adding connection {connectionId} to the group {worldName}.");
+            await WanderlandHub.Groups.AddToGroupAsync(connectionId, worldName);
+            Logger.LogInformation($"Added connection {connectionId} to the group {worldName}.");
             GroupMemberships.State.Add(new SignalRConnectionToWorldMap { ConnectionId = connectionId, World = worldName });
+            Logger.LogInformation($"Added connection {connectionId} to the group {worldName} in grain persistence.");
             await GroupMemberships.WriteStateAsync();
         }
 
         public async Task ClientDisconnects(string connectionId)
         {
-            if (GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
+            foreach (var mapping in GroupMemberships.State.Where(x => x.ConnectionId == connectionId))
             {
-                GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
+                Logger.LogInformation($"Removing connection {connectionId} from the group {mapping.World}.");
+                await WanderlandHub.Groups.RemoveFromGroupAsync(mapping.ConnectionId, mapping.World);
             }
-
+            Logger.LogInformation($"Removing connection {connectionId} from Grain persistence.");
+            GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
             await GroupMemberships.WriteStateAsync();
-        }
-
-        public Task<string?> GetCurrentWorldForConnectionId(string connectionId)
-        {
-            if (GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
-            {
-                return Task.FromResult<string?>(GroupMemberships.State.First(x => x.ConnectionId == connectionId).World);
-            }
-
-            return Task.FromResult<string?>(null);
         }
     }
 

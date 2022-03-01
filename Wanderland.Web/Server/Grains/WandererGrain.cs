@@ -116,7 +116,6 @@ namespace Wanderland.Web.Server.Grains
 
             // move to the next tile
             var nextTileGrainId = options[new Random().Next(0, options.Count)];
-            Logger.LogInformation($"{this.GetPrimaryKeyString()}'s next Tile ID is {nextTileGrainId}.");
             var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
             await SetLocation(nextTileGrain);
         }

@@ -3,6 +3,7 @@
 @using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
 @inject WanderlandHubClient _hubClient
+@inject ILogger<WorldGrid> _logger
 
 <h2>@World.Name</h2>
 @for (int row = 0; row < World.Rows; row++)
@@ -32,7 +33,7 @@
             StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
             await _hubClient.JoinWorld(WorldName);
-            Console.WriteLine($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
+            _logger.LogInformation($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
         }
     }
 }

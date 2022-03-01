@@ -28,7 +28,7 @@ namespace Wanderland.Web.Server.Grains
             if(!Tile.State.WanderersHere.Contains(wandererName))
             {
                 Tile.State.WanderersHere.Add(wandererName);
-                Logger.LogInformation($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
+                //Logger.LogDebug($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
@@ -39,7 +39,7 @@ namespace Wanderland.Web.Server.Grains
             if (Tile.State.WanderersHere.Contains(wandererName))
             {
                 Tile.State.WanderersHere.Remove(wandererName);
-                Logger.LogInformation($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
+                //Logger.LogDebug($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }

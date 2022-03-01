@@ -31,7 +31,6 @@ namespace Wanderland.Web.Server.Hubs
         public async Task JoinWorld(string worldName)
         {
             await _groupMembershipGrain.ChangeClientWorldGroupMembership(this.Context.ConnectionId, worldName);
-            await base.Groups.AddToGroupAsync(this.Context.ConnectionId, worldName);
         }
     }
 }
