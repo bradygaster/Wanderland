@@ -4,6 +4,7 @@
 @inject WanderlandHubClient _hubClient
 
 <MudNavMenu>
+    <MudNavLink Href="/about" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Info">About Wanderland</MudNavLink>
     <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
         @foreach (var world in _worlds)
         {
@@ -12,7 +13,6 @@
     </MudNavGroup>
     <MudNavLink Href="/swagger" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Api">Swagger UI</MudNavLink>
     <MudNavLink Href="http://localhost:8080" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AreaChart">Orleans Dashboard</MudNavLink>
-
 </MudNavMenu>
 
 @code
@@ -23,6 +23,7 @@
     {
         var getWorlds = async () => _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
         _hubClient.WorldListUpdate += (s, e) => getWorlds();
+        await getWorlds();
 
         await base.OnInitializedAsync();
     }

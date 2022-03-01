@@ -147,4 +147,28 @@ app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactor
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
 
+// create an entire world in one request but do it completely randomly
+app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
+{
+    var faker = new Faker();
+    int rows = new Random().Next(5, 10);
+    int columns = new Random().Next(5, 10);
+    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+    var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
+    var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
+    var newWorld = await worldGrain.GetWorld();
+    int wanderers = new Random().Next(1, 10);
+    for (int i = 0; i < wanderers; i++)
+    {
+        string wandererName = new Faker().Person.FirstName;
+        var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+        var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+        await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+    }
+
+    return Results.Ok(newWorld);
+})
+.WithName("CreateRandomLand")
+.Produces<World>(StatusCodes.Status200OK);
+
 app.Run();
