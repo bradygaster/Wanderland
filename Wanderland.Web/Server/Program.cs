@@ -17,8 +17,8 @@ builder.Host.UseOrleans(siloBuilder =>
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
     siloBuilder.UseDashboard();
 });
-
 var app = builder.Build();
+
 app.SetupApp();
 
 // create a new world
@@ -144,6 +144,11 @@ app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactor
         {
             string wandererName = new Faker().Person.FirstName;
             var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+            await newWandererGrain.SetInfo(new Wanderer
+            {
+                Name = wandererName,
+                AvatarImage = new Faker().Person.Avatar
+            });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
         }
@@ -162,19 +167,24 @@ app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactor
 app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
 {
     var faker = new Faker();
-    int rows = new Random().Next(5, 10);
-    int columns = new Random().Next(5, 10);
+    int rows = new Random().Next(3, 10);
+    int columns = new Random().Next(3, 10);
     var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
     var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
     var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
     if (worldGrain != null)
     {
         var newWorld = await worldGrain.GetWorld();
-        int wanderers = new Random().Next(1, 10);
+        int wanderers = new Random().Next(3, 10);
         for (int i = 0; i < wanderers; i++)
         {
             string wandererName = new Faker().Person.FirstName;
             var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+            await newWandererGrain.SetInfo(new Wanderer
+            {
+                Name = wandererName,
+                AvatarImage = new Faker().Person.Avatar
+            });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
         }

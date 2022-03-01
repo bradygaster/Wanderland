@@ -4,16 +4,16 @@
 
 <MudPaper Height="80px"
           Width="80px"
+          Class="ma-auto pa-4"
           Style='@($"background:{GetColorForTile()}")'>
     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
         @if (Model != null)
         {
             @foreach (var wanderer in Model.WanderersHere)
             {
-                var text = wanderer.First();
-                <MudBadge Color="Color.Success" Icon="@Icons.Material.Filled.DirectionsWalk" Overlap="true" Bordered="true">
-                    <MudAvatar Color="Color.Info" Size="Size.Small">@text</MudAvatar>
-                </MudBadge>
+                <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
+                    <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
+                </MudAvatar>
             }
         }
 

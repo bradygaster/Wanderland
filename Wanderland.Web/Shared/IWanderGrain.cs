@@ -7,5 +7,6 @@ namespace Wanderland.Web.Shared
         Task Wander();
         Task SetLocation(ITileGrain tileGrain);
         Task<Wanderer> GetWanderer();
+        Task SetInfo(Wanderer wanderer);
     }
 }
