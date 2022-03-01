@@ -194,7 +194,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
 
     return Results.BadRequest();
 })
-.WithName("CreateRandomLand")
+.WithName("CreateRandomWorld")
 .Produces(StatusCodes.Status400BadRequest)
 .Produces<World>(StatusCodes.Status200OK);
 

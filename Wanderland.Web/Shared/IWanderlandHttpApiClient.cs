@@ -15,6 +15,9 @@ namespace Wanderland.Web.Shared
 
         [Get("/worlds/{name}/tiles/{row}/{column}")]
         Task<Tile> GetTileCurrentState(string name, int row, int column);
+
+        [Post("/worlds/random")]
+        Task<World> CreateRandomWorld();
     }
 
     public class WanderlandHttpApiClient : IWanderlandHttpApiClient
@@ -24,6 +27,11 @@ namespace Wanderland.Web.Shared
         public WanderlandHttpApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+
+        public async Task<World> CreateRandomWorld()
+        {
+            return await RestService.For<IWanderlandHttpApiClient>(_httpClient).CreateRandomWorld();
         }
 
         async Task<Tile> IWanderlandHttpApiClient.GetTileCurrentState(string name, int row, int column)
