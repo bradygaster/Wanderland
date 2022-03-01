@@ -41,6 +41,11 @@ namespace Wanderland.Web.Client.Services
             }
         }
 
+        public async Task JoinWorld(string worldName)
+        {
+            await Connection.SendAsync("JoinWorld", worldName);
+        }
+
         public Task TileUpdated(Tile tile)
         {
             if (TileUpdate != null)
@@ -58,5 +63,14 @@ namespace Wanderland.Web.Client.Services
             }
             return Task.CompletedTask;
         }
+    }
+
+    public class WorldListUpdatedEventArgs
+    {
+    }
+
+    public class TileUpdatedEventArgs
+    {
+        public Tile Tile { get; set; }
     }
 }

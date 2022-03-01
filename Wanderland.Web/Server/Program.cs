@@ -14,6 +14,7 @@ builder.Host.UseOrleans(siloBuilder =>
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldStorageName);
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
     siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
+    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
     siloBuilder.UseDashboard();
 });
 

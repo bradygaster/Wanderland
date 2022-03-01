@@ -1,6 +1,8 @@
 ﻿@page "/grid/{worldName?}"
+@using Wanderland.Web.Client.Services
 @using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
+@inject WanderlandHubClient _hubClient
 
 <h2>@World.Name</h2>
 @for (int row = 0; row < World.Rows; row++)
@@ -30,6 +32,7 @@
         if (!string.IsNullOrEmpty(WorldName))
         {
             World = await _apiClient.GetWorld(WorldName);
+            await _hubClient.JoinWorld(WorldName);
             Console.WriteLine($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
             shouldRender = true;
         }

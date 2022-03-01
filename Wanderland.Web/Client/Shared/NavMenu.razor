@@ -19,12 +19,20 @@
 {
     List<string> _worlds = new List<string>();
 
+    private bool shouldRender;
+    protected override bool ShouldRender() => shouldRender;
+
     protected override async Task OnInitializedAsync()
     {
         var getWorlds = async () => _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
-        _hubClient.WorldListUpdate += (s, e) => getWorlds();
+        _hubClient.WorldListUpdate += async (s, e) =>
+        {
+            await getWorlds();
+            StateHasChanged();
+        };
+
         await getWorlds();
 
-        await base.OnInitializedAsync();
+        shouldRender = true;
     }
 }

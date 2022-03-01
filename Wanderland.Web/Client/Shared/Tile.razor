@@ -46,7 +46,7 @@
                 if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
                 {
                     Model = args.Tile;
-                    Console.WriteLine($"Tile {Model.Row}/{Model.Column} has {Model.WanderersHere.Count} wanderer(s).");
+                    Console.WriteLine($"World {this.WorldName} tile {Model.Row}/{Model.Column} has {Model.WanderersHere.Count} wanderer(s).");
                     base.StateHasChanged();
                 }
 
