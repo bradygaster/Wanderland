@@ -147,7 +147,7 @@ app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactor
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
-                AvatarImage = new Faker().Person.Avatar
+                Speed = new Random().Next(500, 1500)
             });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
@@ -183,7 +183,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
-                AvatarImage = new Faker().Person.Avatar
+                Speed = new Random().Next(500, 1500)
             });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));

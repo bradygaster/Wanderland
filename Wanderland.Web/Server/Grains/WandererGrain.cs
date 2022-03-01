@@ -24,17 +24,24 @@ namespace Wanderland.Web.Server.Grains
 
         private TimeSpan GetMoveDuration()
         {
-            return TimeSpan.FromMilliseconds(300);
+            return TimeSpan.FromMilliseconds(Wanderer.State.Speed);
         }
+
+        IDisposable _timer;
 
         public override async Task OnActivateAsync()
         {
-            RegisterTimer(async _ =>
-                {
-                    await Wander();
-                }, null, GetMoveDuration(), GetMoveDuration());
+            SetupWanderTimer();
 
             await base.OnActivateAsync();
+        }
+
+        private void SetupWanderTimer()
+        {
+            _timer = RegisterTimer(async _ =>
+            {
+                await Wander();
+            }, null, GetMoveDuration(), GetMoveDuration());
         }
 
         public async Task SetLocation(ITileGrain tileGrain)
@@ -118,6 +125,7 @@ namespace Wanderland.Web.Server.Grains
         {
             Wanderer.State = wanderer;
             await Wanderer.WriteStateAsync();
+            SetupWanderTimer();
         }
     }
 }
