@@ -25,7 +25,7 @@ namespace Wanderland.Web.Server.Grains
             if(GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
             {
                 await WanderlandHub.Groups.RemoveFromGroupAsync(connectionId, worldName);
-                GroupMemberships.State.First(x => x.ConnectionId == connectionId).World = worldName;
+                GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
             }
             else
             {
@@ -43,6 +43,16 @@ namespace Wanderland.Web.Server.Grains
             }
 
             await GroupMemberships.WriteStateAsync();
+        }
+
+        public Task<string?> GetCurrentWorldForConnectionId(string connectionId)
+        {
+            if (GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
+            {
+                return Task.FromResult<string?>(GroupMemberships.State.First(x => x.ConnectionId == connectionId).World);
+            }
+
+            return Task.FromResult<string?>(null);
         }
     }
 

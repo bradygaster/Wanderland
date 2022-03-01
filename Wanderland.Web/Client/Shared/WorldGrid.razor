@@ -23,18 +23,16 @@
     [Parameter]
     public string? WorldName { get; set; }
     public World World { get; set; } = new World();
-    private bool shouldRender = false;
-
-    protected override bool ShouldRender() => shouldRender;
 
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
+            World = new World();
+            StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
             await _hubClient.JoinWorld(WorldName);
             Console.WriteLine($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
-            shouldRender = true;
         }
     }
 }

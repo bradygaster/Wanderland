@@ -6,5 +6,6 @@ namespace Wanderland.Web.Server.Grains
     {
         Task ChangeClientWorldGroupMembership(string connectionId, string worldName);
         Task ClientDisconnects(string connectionId);
+        Task<string?> GetCurrentWorldForConnectionId(string connectionId);
     }
 }

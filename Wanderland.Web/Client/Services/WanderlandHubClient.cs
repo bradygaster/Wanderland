@@ -11,7 +11,7 @@ namespace Wanderland.Web.Client.Services
             HubUri = new Uri($"{BaseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
         }
 
-        private HubConnection Connection { get; set; }
+        private HubConnection? Connection { get; set; }
         private Uri BaseUri { get; set; }
         private Uri HubUri { get; set; }
         public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
@@ -32,18 +32,15 @@ namespace Wanderland.Web.Client.Services
             Connection.On("WorldListUpdated", WorldListUpdated);
             Connection.On<Tile>("TileUpdated", TileUpdated);
 
-            try
-            {
-                await Connection.StartAsync();
-            }
-            catch (Exception ex)
-            {
-            }
+            await Connection.StartAsync();
         }
 
         public async Task JoinWorld(string worldName)
-        {
-            await Connection.SendAsync("JoinWorld", worldName);
+        { 
+            if(Connection != null)
+            {
+                await Connection.SendAsync("JoinWorld", worldName);
+            }
         }
 
         public Task TileUpdated(Tile tile)
