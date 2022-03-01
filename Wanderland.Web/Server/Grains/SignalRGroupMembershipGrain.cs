@@ -24,14 +24,15 @@ namespace Wanderland.Web.Server.Grains
         {
             if(GroupMemberships.State.Any(x => x.ConnectionId == connectionId))
             {
-                await WanderlandHub.Groups.RemoveFromGroupAsync(connectionId, worldName);
+                var currentWorld = await GetCurrentWorldForConnectionId(connectionId);
+                if(currentWorld != worldName)
+                {
+                    await WanderlandHub.Groups.RemoveFromGroupAsync(connectionId, currentWorld);
+                }
                 GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
             }
-            else
-            {
-                GroupMemberships.State.Add(new SignalRConnectionToWorldMap {  ConnectionId = connectionId, World = worldName });
-            }
 
+            GroupMemberships.State.Add(new SignalRConnectionToWorldMap { ConnectionId = connectionId, World = worldName });
             await GroupMemberships.WriteStateAsync();
         }
 
