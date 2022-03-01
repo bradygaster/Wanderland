@@ -4,7 +4,7 @@
 @inject WanderlandHubClient _hubClient
 
 <MudNavMenu>
-    <MudNavLink Href="/about" Target="_blank" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Info">About Wanderland</MudNavLink>
+    <MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Info">About Wanderland</MudNavLink>
     <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
         @foreach (var world in _worlds)
         {
