@@ -1,9 +1,7 @@
 ﻿@page "/grid/{worldName?}"
-@using Wanderland.Web.Client.Services
-@using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
-@inject WanderlandHubClient _hubClient
 @inject ILogger<WorldGrid> _logger
+@inject WanderlandHubClient _hubClient
 
 <h2>@World.Name</h2>
 @for (int row = 0; row < World.Rows; row++)

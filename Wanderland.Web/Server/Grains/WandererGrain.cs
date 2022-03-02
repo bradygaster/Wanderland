@@ -31,13 +31,20 @@ namespace Wanderland.Web.Server.Grains
 
         public override async Task OnActivateAsync()
         {
-            SetupWanderTimer();
+            ResetWanderTimer();
 
             await base.OnActivateAsync();
         }
 
-        private void SetupWanderTimer()
+        public override Task OnDeactivateAsync()
         {
+            _timer?.Dispose();
+            return base.OnDeactivateAsync();
+        }
+
+        private void ResetWanderTimer()
+        {
+            _timer?.Dispose();
             _timer = RegisterTimer(async _ =>
             {
                 await Wander();
@@ -124,7 +131,7 @@ namespace Wanderland.Web.Server.Grains
         {
             Wanderer.State = wanderer;
             await Wanderer.WriteStateAsync();
-            SetupWanderTimer();
+            ResetWanderTimer();
         }
     }
 }
