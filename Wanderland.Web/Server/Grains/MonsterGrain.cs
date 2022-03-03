@@ -18,12 +18,10 @@ namespace Wanderland.Web.Server.Grains
         public async Task Eat(IWanderGrain grain)
         {
             var deadWanderer = await grain.GetWanderer();
-            Logger.LogInformation($"Monster {this.Wanderer.State.Name} is going to eat {deadWanderer.Name}");
             deadWanderer.State = WandererState.Dead;
             await grain.SetInfo(deadWanderer);
             grain.Dispose();
-            await SpeedUp();
-            Logger.LogInformation($"Monster {this.Wanderer.State.Name} has eaten {deadWanderer.Name}");
+            await SpeedUp(50);
         }
 
         public override async Task SetInfo(Wanderer wanderer)

@@ -26,11 +26,8 @@ namespace Wanderland.Web.Server.Grains
         public async Task ChangeClientWorldGroupMembership(string connectionId, string worldName)
         {
             await ClientDisconnects(connectionId);
-            Logger.LogInformation($"Adding connection {connectionId} to the group {worldName}.");
             await WanderlandHub.Groups.AddToGroupAsync(connectionId, worldName);
-            Logger.LogInformation($"Added connection {connectionId} to the group {worldName}.");
             GroupMemberships.State.Add(new SignalRConnectionToWorldMap { ConnectionId = connectionId, World = worldName });
-            Logger.LogInformation($"Added connection {connectionId} to the group {worldName} in grain persistence.");
             await GroupMemberships.WriteStateAsync();
         }
 
@@ -38,10 +35,8 @@ namespace Wanderland.Web.Server.Grains
         {
             foreach (var mapping in GroupMemberships.State.Where(x => x.ConnectionId == connectionId))
             {
-                Logger.LogInformation($"Removing connection {connectionId} from the group {mapping.World}.");
                 await WanderlandHub.Groups.RemoveFromGroupAsync(mapping.ConnectionId, mapping.World);
             }
-            Logger.LogInformation($"Removing connection {connectionId} from Grain persistence.");
             GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
             await GroupMemberships.WriteStateAsync();
         }

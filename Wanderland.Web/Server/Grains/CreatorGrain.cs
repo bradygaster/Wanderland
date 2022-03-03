@@ -10,14 +10,49 @@ namespace Wanderland.Web.Server.Grains
     {
         public IPersistentState<List<string>> Worlds { get; }
         public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
+        public ILogger<CreatorGrain> Logger { get; }
 
         public CreatorGrain([PersistentState(Constants.PersistenceKeys.WorldListStateName, Constants.PersistenceKeys.WorldListStorageName)]
             IPersistentState<List<string>> worlds,
-            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub, 
+            ILogger<CreatorGrain> logger
             )
         {
             Worlds = worlds;
             WanderlandHubContext = wanderlandHub;
+            Logger = logger;
+        }
+
+        IDisposable _timer;
+        public override Task OnActivateAsync()
+        {
+            _timer?.Dispose();
+            _timer = RegisterTimer(async _ =>
+            {
+                var removes = new List<string>();
+                foreach (var world in Worlds.State)
+                {
+                    var worldGrain = GrainFactory.GetGrain<IWorldGrain>(world);
+                    if(await worldGrain.IsWorldEmpty())
+                    {
+                        worldGrain.Dispose();
+                        removes.Add(world);
+                    }
+                }
+
+                if(!removes.Any())
+                {
+                    Logger.LogInformation("No worlds to delete.");
+                }
+                foreach (var remove in removes)
+                {
+                    Logger.LogInformation($"Removing world {remove} since it has no only one wanderer left.");
+                    await WanderlandHubContext.Clients.All.WorldListUpdated();
+                    Worlds.State.Remove(remove);
+                }
+            }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+
+            return base.OnActivateAsync();
         }
 
         async Task<IWorldGrain?> ICreatorGrain.CreateWorld(World world)
@@ -72,6 +107,12 @@ namespace Wanderland.Web.Server.Grains
                 result.Add(await GrainFactory.GetGrain<IWorldGrain>(worldName.ToLower()).GetWorld());
             }
             return result;
+        }
+
+        public Task DestroyWorld(IWorldGrain worldGrain)
+        {
+            worldGrain.Dispose();
+            return Task.CompletedTask;
         }
     }
 }
