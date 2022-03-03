@@ -4,6 +4,7 @@
 @inject WanderlandHubClient _hubClient
 
 <h2>@World.Name</h2>
+<MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="_ => { _apiClient.DeleteWorld(WorldName); StateHasChanged(); }">Delete</MudButton>
 @for (int row = 0; row < World.Rows; row++)
 {
     int currentRow = row;

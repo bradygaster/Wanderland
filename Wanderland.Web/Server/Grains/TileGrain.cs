@@ -28,7 +28,6 @@ namespace Wanderland.Web.Server.Grains
             if(!Tile.State.WanderersHere.Any(x => x.Name == wandererName))
             {
                 Tile.State.WanderersHere.Add(await wanderer.GetWanderer());
-                //Logger.LogDebug($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
@@ -39,7 +38,6 @@ namespace Wanderland.Web.Server.Grains
             if (Tile.State.WanderersHere.Any(x => x.Name == wandererName))
             {
                 Tile.State.WanderersHere.RemoveAll(x => x.Name == wandererName);
-                //Logger.LogDebug($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
@@ -53,6 +51,11 @@ namespace Wanderland.Web.Server.Grains
         {
             Tile.State = tile;
             return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            Tile.ClearStateAsync();
         }
     }
 }

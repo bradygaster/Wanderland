@@ -10,6 +10,9 @@ namespace Wanderland.Web.Shared
         [Get("/worlds/{name}")]
         Task<World> GetWorld(string name);
 
+        [Delete("/worlds/{name}")]
+        Task DeleteWorld(string name);
+
         [Get("/worlds/{name}/tiles")]
         Task<List<Tile>> GetWorldTiles(string name);
 
@@ -32,6 +35,11 @@ namespace Wanderland.Web.Shared
         public async Task<World> CreateRandomWorld()
         {
             return await RestService.For<IWanderlandHttpApiClient>(_httpClient).CreateRandomWorld();
+        }
+
+        public async Task DeleteWorld(string name)
+        {
+            await RestService.For<IWanderlandHttpApiClient>(_httpClient).DeleteWorld(name);
         }
 
         async Task<Tile> IWanderlandHttpApiClient.GetTileCurrentState(string name, int row, int column)

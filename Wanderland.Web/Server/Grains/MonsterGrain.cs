@@ -18,8 +18,6 @@ namespace Wanderland.Web.Server.Grains
         public async Task Eat(IWanderGrain grain)
         {
             var deadWanderer = await grain.GetWanderer();
-            deadWanderer.State = WandererState.Dead;
-            await grain.SetInfo(deadWanderer);
             grain.Dispose();
             await SpeedUp(50);
         }

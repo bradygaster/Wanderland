@@ -70,7 +70,7 @@ namespace Wanderland.Web.Server.Grains
                     // can the wanderer move north?
                     var isTileNorthOfMeAvailable = async () =>
                     {
-                        if (!(Wanderer.State.CurrentLocation.Row > 0)) return false;
+                        if (Wanderer.State.CurrentLocation == null || !(Wanderer.State.CurrentLocation.Row > 0)) return false;
                         var tileNorth = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row - 1}/{Wanderer.State.CurrentLocation.Column}").GetTile();
                         return tileNorth.Type == TileType.Space;
                     };
@@ -78,7 +78,7 @@ namespace Wanderland.Web.Server.Grains
                     // can the wanderer move west?
                     var isTileWestOfMeAvailable = async () =>
                     {
-                        if (!(Wanderer.State.CurrentLocation.Column > 0)) return false;
+                        if (Wanderer.State.CurrentLocation == null || !(Wanderer.State.CurrentLocation.Column > 0)) return false;
                         var tileWest = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column - 1}").GetTile();
                         return tileWest.Type == TileType.Space;
                     };
@@ -86,7 +86,7 @@ namespace Wanderland.Web.Server.Grains
                     // can the wanderer move north?
                     var isTileSouthOfMeAvailable = async () =>
                     {
-                        if (!(Wanderer.State.CurrentLocation.Row < world.Rows - 1)) return false;
+                        if(Wanderer.State.CurrentLocation == null || !(Wanderer.State.CurrentLocation.Row < world.Rows - 1)) return false;
                         var tileSouth = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row + 1}/{Wanderer.State.CurrentLocation.Column}").GetTile();
                         return tileSouth.Type == TileType.Space;
                     };
@@ -94,7 +94,7 @@ namespace Wanderland.Web.Server.Grains
                     // can the wanderer move east?
                     var isTileEastOfMeAvailable = async () =>
                     {
-                        if (!(Wanderer.State.CurrentLocation.Column < world.Columns - 1)) return false;
+                        if (Wanderer.State.CurrentLocation == null || !(Wanderer.State.CurrentLocation.Column < world.Columns - 1)) return false;
                         var tileEast = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column + 1}").GetTile();
                         return tileEast.Type == TileType.Space;
                     };
@@ -102,34 +102,37 @@ namespace Wanderland.Web.Server.Grains
                     // save up the list of available options for our next direction
                     var options = new List<string>();
 
-                    if (await isTileNorthOfMeAvailable())
+                    if (await isTileNorthOfMeAvailable() && Wanderer.State.CurrentLocation != null)
                     {
                         int rowUp = Wanderer.State.CurrentLocation.Row - 1;
                         options.Add($"{world.Name}/{rowUp}/{Wanderer.State.CurrentLocation.Column}");
                     }
-                    if (await isTileWestOfMeAvailable())
+                    if (await isTileWestOfMeAvailable() && Wanderer.State.CurrentLocation != null)
                     {
                         int colLeft = Wanderer.State.CurrentLocation.Column - 1;
                         options.Add($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{colLeft}");
                     }
-                    if (await isTileSouthOfMeAvailable())
+                    if (await isTileSouthOfMeAvailable() && Wanderer.State.CurrentLocation != null)
                     {
                         int rowDown = Wanderer.State.CurrentLocation.Row + 1;
                         options.Add($"{world.Name}/{rowDown}/{Wanderer.State.CurrentLocation.Column}");
                     }
-                    if (await isTileEastOfMeAvailable())
+                    if (await isTileEastOfMeAvailable() && Wanderer.State.CurrentLocation != null)
                     {
                         int colRight = Wanderer.State.CurrentLocation.Column + 1;
                         options.Add($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{colRight}");
                     }
 
-                    // leave the old tile
-                    await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
+                    if(options.Any())
+                    {
+                        // leave the old tile
+                        await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
 
-                    // move to the next tile
-                    var nextTileGrainId = options[new Random().Next(0, options.Count)];
-                    var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
-                    await SetLocation(nextTileGrain);
+                        // move to the next tile
+                        var nextTileGrainId = options[new Random().Next(0, options.Count)];
+                        var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
+                        await SetLocation(nextTileGrain);
+                    }
                 }
             }
         }
@@ -141,12 +144,10 @@ namespace Wanderland.Web.Server.Grains
             ResetWanderTimer();
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
-            Wanderer.State.CurrentLocation = null;
-            Wanderer.State.State = WandererState.Dead;
-            await Wanderer.WriteStateAsync();
             _timer.Dispose();
+            Wanderer.ClearStateAsync();
         }
 
         public Task SpeedUp(int ratio)

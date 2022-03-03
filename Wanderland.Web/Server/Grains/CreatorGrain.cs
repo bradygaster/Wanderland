@@ -109,10 +109,11 @@ namespace Wanderland.Web.Server.Grains
             return result;
         }
 
-        public Task DestroyWorld(IWorldGrain worldGrain)
+        public async Task DestroyWorld(IWorldGrain worldGrain)
         {
+            Worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
+            await WanderlandHubContext.Clients.All.WorldListUpdated();
             worldGrain.Dispose();
-            return Task.CompletedTask;
         }
     }
 }

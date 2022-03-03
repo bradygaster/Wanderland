@@ -45,6 +45,16 @@ app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
 .WithName("GetWorlds")
 .Produces<List<World>>(StatusCodes.Status200OK);
 
+// gets all the worlds in the list
+app.MapDelete("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
+{
+    await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(
+        grainFactory.GetGrain<IWorldGrain>(name)
+    );
+})
+.WithName("DeleteWorld")
+.Produces(StatusCodes.Status200OK);
+
 // gets a specific world by name
 app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 {
@@ -192,7 +202,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
-                Speed = new Random().Next(300, 1000)
+                Speed = new Random().Next(700, 1500)
             });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
@@ -204,7 +214,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
         await monsterGrain.SetInfo(new Wanderer
         {
             Name = monsterName,
-            Speed = new Random().Next(300, 1000)
+            Speed = new Random().Next(700, 1500)
         });
         var monsterTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
         await monsterGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(monsterTileGrainId));

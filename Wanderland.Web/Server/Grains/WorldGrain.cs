@@ -21,7 +21,17 @@ namespace Wanderland.Web.Server.Grains
 
         public void Dispose()
         {
-            World.State = null;
+            for (int row = 0; row < World.State.Rows; row++)
+            {
+                for (int col = 0; col < World.State.Columns; col++)
+                {
+                    string grainKey = $"{World.State.Name}/{row}/{col}";
+                    var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
+                    tileGrain.Dispose();
+                }
+            }
+
+            World.ClearStateAsync();
         }
 
         public async Task<bool> IsWorldEmpty()
