@@ -1,22 +1,13 @@
 ﻿using Bogus;
 using Orleans;
-using Orleans.Hosting;
 using Wanderland.Web.Server;
+using Wanderland.Web.Server.Grains;
 using Wanderland.Web.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.SetupServices();
-builder.Host.UseOrleans(siloBuilder =>
-{
-    siloBuilder.UseLocalhostClustering();
-    siloBuilder.UseInMemoryReminderService();
-    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldListStorageName);
-    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldStorageName);
-    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
-    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
-    siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
-    siloBuilder.UseDashboard();
-});
+builder.SetupOrleansSilo();
+
 var app = builder.Build();
 
 app.SetupApp();
@@ -71,13 +62,29 @@ app.MapPost("/worlds/{worldName}/wanderers/{wandererName}", async (IGrainFactory
     var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
     if (world == null) return Results.NotFound();
 
-    var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+    var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, typeof(WandererGrain).FullName);
     var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
     await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
 
     return Results.Ok(await newWandererGrain.GetWanderer());
 })
 .WithName("CreateWanderer")
+.Produces(StatusCodes.Status404NotFound)
+.Produces<Wanderer>(StatusCodes.Status200OK);
+
+// creates a new wanderer in the world
+app.MapPost("/worlds/{worldName}/monsters", async (IGrainFactory grainFactory, string worldName) =>
+{
+    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
+    if (world == null) return Results.NotFound();
+
+    var monsterGrain = grainFactory.GetGrain<IMonsterGrain>($"monster-{Environment.TickCount}", grainClassNamePrefix: typeof(MonsterGrain).FullName);
+    var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
+    await monsterGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+
+    return Results.Ok(await monsterGrain.GetWanderer());
+})
+.WithName("CreateMonster")
 .Produces(StatusCodes.Status404NotFound)
 .Produces<Wanderer>(StatusCodes.Status200OK);
 
@@ -143,7 +150,7 @@ app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactor
         for (int i = 0; i < wanderers; i++)
         {
             string wandererName = new Faker().Person.FirstName;
-            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
@@ -179,7 +186,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
         for (int i = 0; i < wanderers; i++)
         {
             string wandererName = new Faker().Person.FirstName;
-            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName);
+            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,

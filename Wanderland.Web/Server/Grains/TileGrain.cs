@@ -25,9 +25,9 @@ namespace Wanderland.Web.Server.Grains
         async Task ITileGrain.Arrives(IWanderGrain wanderer)
         {
             var wandererName = wanderer.GetPrimaryKeyString();
-            if(!Tile.State.WanderersHere.Contains(wandererName))
+            if(!Tile.State.WanderersHere.Any(x => x.Name == wandererName))
             {
-                Tile.State.WanderersHere.Add(wandererName);
+                Tile.State.WanderersHere.Add(await wanderer.GetWanderer());
                 //Logger.LogDebug($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
@@ -36,9 +36,9 @@ namespace Wanderland.Web.Server.Grains
         async Task ITileGrain.Leaves(IWanderGrain wanderer)
         {
             var wandererName = wanderer.GetPrimaryKeyString();
-            if (Tile.State.WanderersHere.Contains(wandererName))
+            if (Tile.State.WanderersHere.Any(x => x.Name == wandererName))
             {
-                Tile.State.WanderersHere.Remove(wandererName);
+                Tile.State.WanderersHere.RemoveAll(x => x.Name == wandererName);
                 //Logger.LogDebug($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }

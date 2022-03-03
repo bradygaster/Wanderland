@@ -3,19 +3,24 @@
 
 <MudPaper Height="80px"
           Width="80px"
-          Class="ma-auto pa-4"
           Style='@($"background:{GetColorForTile()}")'>
     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
         @if (Model != null)
         {
             @foreach (var wanderer in Model.WanderersHere)
             {
-                <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
-                    <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
-                </MudAvatar>
+                if(string.IsNullOrEmpty(wanderer.AvatarImageUrl))
+                {
+        <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
+            <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
+        </MudAvatar>
+                }
+                else
+                {
+        <MudAvatar Image="@wanderer.AvatarImageUrl" Variant="Variant.Filled"/>
+                }
             }
         }
-
     </MudAvatarGroup>
 </MudPaper>
 
