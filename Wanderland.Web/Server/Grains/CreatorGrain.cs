@@ -46,7 +46,7 @@ namespace Wanderland.Web.Server.Grains
                 }
                 foreach (var remove in removes)
                 {
-                    Logger.LogInformation($"Removing world {remove} since it has no only one wanderer left.");
+                    Logger.LogInformation($"Removing world {remove} since it has only one wanderer left.");
                     await WanderlandHubContext.Clients.All.WorldListUpdated();
                     Worlds.State.Remove(remove);
                 }

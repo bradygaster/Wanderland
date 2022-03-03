@@ -31,7 +31,6 @@
             StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
             await _hubClient.JoinWorld(WorldName);
-            _logger.LogInformation($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
         }
     }
 }

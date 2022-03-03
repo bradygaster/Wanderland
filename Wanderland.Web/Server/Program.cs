@@ -183,6 +183,8 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
     {
         var newWorld = await worldGrain.GetWorld();
         int wanderers = new Random().Next(3, 10);
+
+        // add some wanderers
         for (int i = 0; i < wanderers; i++)
         {
             string wandererName = new Faker().Person.FirstName;
@@ -190,11 +192,22 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
-                Speed = new Random().Next(1000, 3000)
+                Speed = new Random().Next(300, 1000)
             });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
             await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
         }
+
+        // now add a monster
+        var monsterName = $"monster-{Environment.TickCount}";
+        var monsterGrain = grainFactory.GetGrain<IMonsterGrain>(monsterName, grainClassNamePrefix: typeof(MonsterGrain).FullName);
+        await monsterGrain.SetInfo(new Wanderer
+        {
+            Name = monsterName,
+            Speed = new Random().Next(300, 1000)
+        });
+        var monsterTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+        await monsterGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(monsterTileGrainId));
 
         return Results.Ok(newWorld);
     }
