@@ -19,7 +19,7 @@ namespace Wanderland.Web.Server.Grains
         {
             var deadWanderer = await grain.GetWanderer();
             grain.Dispose();
-            await SpeedUp(50);
+            await SpeedUp(4);
         }
 
         public override async Task SetInfo(Wanderer wanderer)
