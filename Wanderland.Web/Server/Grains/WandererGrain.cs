@@ -125,13 +125,16 @@ namespace Wanderland.Web.Server.Grains
 
                     if(options.Any())
                     {
-                        // leave the old tile
-                        await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
+                        if(Wanderer.State.CurrentLocation != null)
+                        {
+                            // leave the old tile
+                            await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
 
-                        // move to the next tile
-                        var nextTileGrainId = options[new Random().Next(0, options.Count)];
-                        var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
-                        await SetLocation(nextTileGrain);
+                            // move to the next tile
+                            var nextTileGrainId = options[new Random().Next(0, options.Count)];
+                            var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
+                            await SetLocation(nextTileGrain);
+                        }
                     }
                 }
             }

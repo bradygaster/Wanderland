@@ -10,15 +10,15 @@
         {
             @foreach (var wanderer in Model.WanderersHere)
             {
-                if(string.IsNullOrEmpty(wanderer.AvatarImageUrl))
+                if (string.IsNullOrEmpty(wanderer.AvatarImageUrl))
                 {
-        <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
-            <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
-        </MudAvatar>
+                    <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
+                        <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
+                    </MudAvatar>
                 }
                 else
                 {
-        <MudAvatar Image="@wanderer.AvatarImageUrl" Variant="Variant.Filled"/>
+                    <MudAvatar Image="@wanderer.AvatarImageUrl" Variant="Variant.Filled" />
                 }
             }
         }
@@ -63,8 +63,18 @@
     protected string GetColorForTile()
     {
         if (Model?.Type == TileType.Barrier)
-            return Colors.BlueGrey.Darken4;
+            return Colors.Shades.Black;
 
-        return Colors.BlueGrey.Default;
+        if (Model?.Column == 0) return Colors.BlueGrey.Lighten5;
+        if (Model?.Column == 1) return Colors.BlueGrey.Lighten4;
+        if (Model?.Column == 2) return Colors.BlueGrey.Lighten3;
+        if (Model?.Column == 3) return Colors.BlueGrey.Lighten2;
+        if (Model?.Column == 4) return Colors.BlueGrey.Lighten1;
+        if (Model?.Column == 5) return Colors.BlueGrey.Default;
+        if (Model?.Column == 6) return Colors.BlueGrey.Darken1;
+        if (Model?.Column == 7) return Colors.BlueGrey.Darken2;
+        if (Model?.Column == 8) return Colors.BlueGrey.Darken3;
+        
+        return Colors.BlueGrey.Darken4;
     }
 }
