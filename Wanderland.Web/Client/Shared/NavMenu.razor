@@ -19,16 +19,18 @@
     private bool shouldRender;
     protected override bool ShouldRender() => shouldRender;
 
+    private async Task RefreshWorlds()
+    {
+        _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        var getWorlds = async () => _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
-        _hubClient.WorldListUpdate += async (s, e) =>
-        {
-            await getWorlds();
-            StateHasChanged();
-        };
+        _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
+        _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
 
-        await getWorlds();
+        await RefreshWorlds();
 
         shouldRender = true;
     }

@@ -33,7 +33,17 @@ namespace Wanderland.Web.Server.Grains
             _timer?.Dispose();
             _timer = RegisterTimer(async _ =>
             {
-                await Wander();
+                try
+                {
+                    await Wander();
+                }
+                catch
+                {
+                    _timer?.Dispose();
+                    // swallowing this exception because this could 
+                    // mean this wanderer's world and tiles have
+                    // been wiped and they're still hanging out.
+                }
             }, null, GetMoveDuration(), GetMoveDuration());
         }
 

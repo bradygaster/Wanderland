@@ -41,20 +41,22 @@
 
     protected override bool ShouldRender() => shouldRender;
 
+    private void OnTileUpdated(TileUpdatedEventArgs args)
+    {
+        if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
+        {
+            Model = args.Tile;
+            base.StateHasChanged();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
             Model = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
-            _hubClient.TileUpdate += (s, args) =>
-            {
-                if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
-                {
-                    Model = args.Tile;
-                    base.StateHasChanged();
-                }
-
-            };
+            _hubClient.TileUpdate -= (s, args) => OnTileUpdated(args);
+            _hubClient.TileUpdate += (s, args) => OnTileUpdated(args);
             TileType = Model.Type;
             shouldRender = true;
         }

@@ -40,16 +40,16 @@ namespace Wanderland.Web.Server.Grains
                     }
                 }
 
-                if(!removes.Any())
+                if (removes.Any())
                 {
-                    Logger.LogInformation("No worlds to delete.");
+                    foreach (var remove in removes)
+                    {
+                        Logger.LogInformation($"Removing world {remove} since it has only one wanderer left.");
+                        await WanderlandHubContext.Clients.All.WorldListUpdated();
+                        Worlds.State.Remove(remove);
+                    }
                 }
-                foreach (var remove in removes)
-                {
-                    Logger.LogInformation($"Removing world {remove} since it has only one wanderer left.");
-                    await WanderlandHubContext.Clients.All.WorldListUpdated();
-                    Worlds.State.Remove(remove);
-                }
+
             }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
 
             return base.OnActivateAsync();

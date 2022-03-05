@@ -37,6 +37,7 @@ else
     {
         if (firstRender)
         {
+            _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
             _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
             _hubClient.Start();
         }

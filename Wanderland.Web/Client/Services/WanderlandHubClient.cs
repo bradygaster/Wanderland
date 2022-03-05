@@ -23,11 +23,13 @@ namespace Wanderland.Web.Client.Services
                 .WithUrl(HubUri)
                 .Build();
 
-            Connection.Closed += async (error) =>
+            var _ = async () =>
             {
                 await Task.Delay(new Random().Next(0, 5) * 1000);
                 await Connection.StartAsync();
             };
+
+            Connection.Closed += async (error) => await _();
 
             Connection.On("WorldListUpdated", WorldListUpdated);
             Connection.On<Tile>("TileUpdated", TileUpdated);
@@ -60,14 +62,5 @@ namespace Wanderland.Web.Client.Services
             }
             return Task.CompletedTask;
         }
-    }
-
-    public class WorldListUpdatedEventArgs
-    {
-    }
-
-    public class TileUpdatedEventArgs
-    {
-        public Tile Tile { get; set; }
     }
 }

@@ -132,67 +132,31 @@ app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFact
 
     var tileGrain = grainFactory.GetGrain<ITileGrain>($"{name}/{row}/{column}");
     var tile = await tileGrain.GetTile();
+
+    if(tile.WanderersHere.Any() && tile.Type == TileType.Barrier)
+    {
+        tile.WanderersHere.Clear();
+    }
+
     return Results.Ok(tile);
 })
 .WithName("GetTileCurrentState")
 .Produces(StatusCodes.Status404NotFound)
 .Produces<Tile>(StatusCodes.Status200OK);
 
-// create an entire world in one request
-app.MapPost("/worlds/{worldName}/{rows}/{cols}/{wanderers}", async (IGrainFactory grainFactory,
-    string worldName,
-    int rows,
-    int columns,
-    int wanderers) =>
-{
-    if (rows > 10 || columns > 10) return Results.BadRequest("World max size is 10x10.");
-    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
-
-    var exists = await creator.WorldExists(worldName);
-    if (exists) return Results.Conflict($"World with name {worldName} already exists.");
-
-    var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
-    if (worldGrain != null)
-    {
-        var newWorld = await worldGrain.GetWorld();
-
-        var faker = new Faker();
-        for (int i = 0; i < wanderers; i++)
-        {
-            string wandererName = new Faker().Person.FirstName;
-            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
-            await newWandererGrain.SetInfo(new Wanderer
-            {
-                Name = wandererName,
-                Speed = new Random().Next(1000, 3000)
-            });
-            var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
-            await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
-        }
-
-        return Results.Ok(newWorld);
-    }
-
-    return Results.BadRequest();
-})
-.WithName("CreateWholeWorldDemo")
-.Produces(StatusCodes.Status400BadRequest)
-.Produces(StatusCodes.Status404NotFound)
-.Produces<World>(StatusCodes.Status200OK);
-
 // create an entire world in one request but do it completely randomly
 app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
 {
     var faker = new Faker();
-    int rows = new Random().Next(3, 10);
-    int columns = new Random().Next(3, 10);
+    int rows = new Random().Next(8, 10);
+    int columns = new Random().Next(8, 10);
     var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
     var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
     var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
     if (worldGrain != null)
     {
         var newWorld = await worldGrain.GetWorld();
-        int wanderers = new Random().Next(3, 10);
+        int wanderers = 10;
 
         // add some wanderers
         for (int i = 0; i < wanderers; i++)
@@ -202,10 +166,28 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,
-                Speed = new Random().Next(700, 1500)
+                Speed = new Random().Next(300, 800)
             });
             var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
-            await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+            var tileGrain = grainFactory.GetGrain<ITileGrain>(nextTileGrainId);
+            var tile = await tileGrain.GetTile();
+
+            tile.WanderersHere.Clear();
+            await tileGrain.SetTileInfo(tile);
+
+            if (tile.Type != TileType.Barrier)
+            {
+                await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+            }
+            else
+            {
+                while (tile.Type == TileType.Barrier)
+                {
+                    nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+                    tile = await grainFactory.GetGrain<ITileGrain>(nextTileGrainId).GetTile();
+                }
+                await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+            }
         }
 
         // now add a monster
@@ -214,7 +196,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
         await monsterGrain.SetInfo(new Wanderer
         {
             Name = monsterName,
-            Speed = new Random().Next(700, 1500)
+            Speed = new Random().Next(300, 800)
         });
         var monsterTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
         await monsterGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(monsterTileGrainId));
