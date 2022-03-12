@@ -35,7 +35,6 @@ namespace Wanderland.Web.Server.Grains
                     var worldGrain = GrainFactory.GetGrain<IWorldGrain>(world);
                     if(await worldGrain.IsWorldEmpty())
                     {
-                        worldGrain.Dispose();
                         removes.Add(world);
                     }
                 }
@@ -113,7 +112,6 @@ namespace Wanderland.Web.Server.Grains
         {
             Worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
             await WanderlandHubContext.Clients.All.WorldListUpdated();
-            worldGrain.Dispose();
         }
     }
 }

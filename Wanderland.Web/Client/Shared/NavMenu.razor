@@ -1,9 +1,11 @@
 ﻿@inject IWanderlandHttpApiClient _apiClient
 @inject WanderlandHubClient _hubClient
 
-<MudAppBar Color="Color.Primary" Fixed="false">
+<MudAppBar Style='@($"background:{Colors.DeepPurple.Default}")' Fixed="false">
     wanderland.cloud
     <MudSpacer />
+    <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Inherit"
+                   Link="/dashboard" Target="_blank" />
     <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"
                    Link="https://github.com/bradygaster/wanderland" Target="_blank" />
 </MudAppBar>

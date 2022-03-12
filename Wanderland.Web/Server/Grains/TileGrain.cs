@@ -54,10 +54,5 @@ namespace Wanderland.Web.Server.Grains
             Tile.State = tile;
             return Task.CompletedTask;
         }
-
-        public void Dispose()
-        {
-            Tile.ClearStateAsync();
-        }
     }
 }

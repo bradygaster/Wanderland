@@ -49,22 +49,6 @@ namespace Wanderland.Web.Server.Grains
             await base.OnActivateAsync();
         }
 
-        public void Dispose()
-        {
-            for (int row = 0; row < World.State.Rows; row++)
-            {
-                for (int col = 0; col < World.State.Columns; col++)
-                {
-                    string grainKey = $"{World.State.Name}/{row}/{col}";
-                    var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
-                    tileGrain.Dispose();
-                }
-            }
-
-            World.ClearStateAsync();
-            _timer?.Dispose();
-        }
-
         public async Task<bool> IsWorldEmpty()
         {
             var wanderersLeft = new List<string>();
