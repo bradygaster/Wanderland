@@ -1,5 +1,6 @@
 ﻿using Orleans;
 using Orleans.Hosting;
+using OrleansDashboard;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server
@@ -17,7 +18,10 @@ namespace Wanderland.Web.Server
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
-                siloBuilder.UseDashboard();
+                siloBuilder.UseDashboard(options =>
+                {
+                    options.HostSelf = false;
+                });
             });
 
             return builder;
