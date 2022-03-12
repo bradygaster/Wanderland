@@ -39,7 +39,6 @@ namespace Wanderland.Web.Server
             app.UseStaticFiles();
             app.UseRouting();
             app.MapRazorPages();
-            app.UseOrleansDashboard();
             app.Map("/dashboard", d =>
             {
                 d.UseOrleansDashboard();

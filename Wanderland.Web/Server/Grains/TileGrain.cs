@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Orleans;
+using Orleans.Configuration;
 using Orleans.Runtime;
 using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
+    [CollectionAgeLimit(Minutes = 2)]
     public class TileGrain : Grain, ITileGrain
     {
         public IPersistentState<Tile> Tile { get; }

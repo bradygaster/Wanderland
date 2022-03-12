@@ -1,9 +1,11 @@
 ﻿using Orleans;
+using Orleans.Configuration;
 using Orleans.Runtime;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
+    [CollectionAgeLimit(Minutes = 2)]
     public class MonsterGrain : WandererGrain, IMonsterGrain
     {
         const string MONSTER_IMAGE_PATH = "/img/monster.png";
