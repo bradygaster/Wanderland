@@ -3,29 +3,41 @@
 @inject ILogger<WorldGrid> _logger
 @inject WanderlandHubClient _hubClient
 
-<MudGrid>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">@World.Name</MudPaper>
+<MudGrid Spacing="2">
+    <MudItem xs="8">
+        @for (int row = 0; row < World.Rows; row++)
+        {
+            int currentRow = row;
+            <MudGrid Spacing="2" Justify="Justify.Center" Class="d-flex flex-nowrap">
+                @for (int col = 0; col < World.Columns; col++)
+                {
+                    int currentColumn = col;
+                    <MudItem>
+                        <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName" />
+                    </MudItem>
+                }
+            </MudGrid>
+        }
     </MudItem>
-</MudGrid>
-    @for (int row = 0; row < World.Rows; row++)
-    {
-        int currentRow = row;
-<MudGrid Spacing="2" Justify="Justify.Center" Class="d-flex flex-nowrap">
-    @for (int col = 0; col < World.Columns; col++)
-    {
-        int currentColumn = col;
-        <MudItem>
-            <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName" />
-        </MudItem>
-    }
-</MudGrid>
-    }
-<MudGrid>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="_ => { _apiClient.DeleteWorld(WorldName); StateHasChanged(); }">Delete</MudButton>
-        </MudPaper>
+    <MudItem xs="4">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">@WorldName</MudText>
+                    <MudText Typo="Typo.caption">Current World</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Default" OnClick="_ => { _apiClient.DeleteWorld(WorldName); StateHasChanged(); }" /> 
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Age</MudText>
+                <MudText Typo="Typo.caption">Age goes here</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+            </MudCardActions>
+        </MudCard>
     </MudItem>
 </MudGrid>
 

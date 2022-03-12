@@ -1,37 +1,13 @@
 ﻿@inject IWanderlandHttpApiClient _apiClient
 @inject WanderlandHubClient _hubClient
 
-<MudNavMenu>
-    <MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Info">About Wanderland</MudNavLink>
-    <MudNavGroup Icon="@Icons.Material.Filled.Home" Title="Worlds">
-        @foreach (var world in _worlds)
-        {
-            <MudNavLink Href="@($"/{world}")" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@world</MudNavLink>
-        }
-        <MudNavLink OnClick="async () => await _apiClient.CreateRandomWorld()" Icon="@Icons.Material.Filled.NewLabel">Create Random World</MudNavLink>
-    </MudNavGroup>
-</MudNavMenu>
+<MudAppBar Color="Color.Primary" Fixed="false">
+    wanderland.cloud
+    <MudSpacer />
+    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"
+                   Link="https://github.com/bradygaster/wanderland" Target="_blank" />
+</MudAppBar>
 
 @code
 {
-    List<string> _worlds = new List<string>();
-
-    private bool shouldRender;
-    protected override bool ShouldRender() => shouldRender;
-
-    private async Task RefreshWorlds()
-    {
-        _worlds = (await _apiClient.GetWorlds()).Select(x => x.Name).ToList();
-        StateHasChanged();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
-        _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
-
-        await RefreshWorlds();
-
-        shouldRender = true;
-    }
 }

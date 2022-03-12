@@ -148,8 +148,8 @@ app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFact
 app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
 {
     var faker = new Faker();
-    int rows = new Random().Next(8, 10);
-    int columns = new Random().Next(8, 10);
+    int rows = 8;
+    int columns = 8;
     var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
     var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
     var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });

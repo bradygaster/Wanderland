@@ -33,16 +33,16 @@ else
     [Parameter]
     public string? WorldName { get; set; }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
             _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
-            _hubClient.Start();
+            await _hubClient.Start();
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override async Task OnInitializedAsync()
