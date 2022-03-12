@@ -16,6 +16,7 @@ namespace Wanderland.Web.Client.Services
         private Uri HubUri { get; set; }
         public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
         public event EventHandler<TileUpdatedEventArgs> TileUpdate;
+        public event EventHandler<WorldAgeUpdatedEventArgs> WorldAgeUpdate;
 
         public async Task Start()
         {
@@ -33,12 +34,17 @@ namespace Wanderland.Web.Client.Services
 
             Connection.On("WorldListUpdated", WorldListUpdated);
             Connection.On<Tile>("TileUpdated", TileUpdated);
+            Connection.On<WorldAgeUpdatedEventArgs>("WorldAgeUpdated", WorldAgeUpdated);
 
             await Connection.StartAsync();
         }
 
+        public string World { get; set; }
+
         public async Task JoinWorld(string worldName)
         { 
+            World = worldName;
+
             if(Connection != null)
             {
                 await Connection.SendAsync("JoinWorld", worldName);
@@ -59,6 +65,15 @@ namespace Wanderland.Web.Client.Services
             if (WorldListUpdate != null)
             {
                 WorldListUpdate(this, new WorldListUpdatedEventArgs());
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task WorldAgeUpdated(WorldAgeUpdatedEventArgs args)
+        {
+            if (WorldAgeUpdate != null)
+            {
+                WorldAgeUpdate(this, args);
             }
             return Task.CompletedTask;
         }

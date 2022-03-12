@@ -32,7 +32,7 @@
             </MudCardHeader>
             <MudCardContent>
                 <MudText Typo="Typo.h6">Age</MudText>
-                <MudText Typo="Typo.caption">Age goes here</MudText>
+                <MudText Typo="Typo.caption">@($"{_age.ToString("hh\\:mm\\:ss")}")</MudText>
             </MudCardContent>
             <MudCardActions>
                 <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
@@ -45,6 +45,7 @@
     [Parameter]
     public string? WorldName { get; set; }
     public World World { get; set; } = new World();
+    private TimeSpan _age;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -54,7 +55,16 @@
             StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
             await _hubClient.JoinWorld(WorldName);
+            _hubClient.WorldAgeUpdate -= OnWorldAgeUpdated;
+            _hubClient.WorldAgeUpdate += OnWorldAgeUpdated;
         }
+    }
+
+    private void OnWorldAgeUpdated(object? sender, WorldAgeUpdatedEventArgs args)
+    {
+        _age = args.Age;
+        Console.WriteLine($"World {args.World} has an age of {args.Age.Minutes}:{args.Age.Seconds}:{args.Age.Milliseconds}.");
+        base.StateHasChanged();
     }
 }
 

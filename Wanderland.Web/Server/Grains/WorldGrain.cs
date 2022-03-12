@@ -10,16 +10,44 @@ namespace Wanderland.Web.Server.Grains
     [CollectionAgeLimit(Minutes = 2)]
     public class WorldGrain : Grain, IWorldGrain
     {
-        public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName, Constants.PersistenceKeys.WorldStorageName)]
+        public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName, 
+            Constants.PersistenceKeys.WorldStorageName)]
             IPersistentState<World> world,
-            IHubContext<WanderlandHub> wanderlandHub)
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub)
         {
             World = world;
             WanderlandHub = wanderlandHub;
         }
 
         public IPersistentState<World> World { get; }
-        public IHubContext<WanderlandHub> WanderlandHub { get; }
+        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHub { get; }
+
+        IDisposable _timer;
+        private void ResetTimer()
+        {
+            _timer?.Dispose();
+            _timer = RegisterTimer(async _ =>
+            {
+                try
+                {
+                    await WanderlandHub.Clients.Group(World.State.Name).WorldAgeUpdated(new WorldAgeUpdatedEventArgs
+                    {
+                        World = World.State.Name,
+                        Age = World.State.Started - DateTime.Now
+                    });
+                }
+                catch
+                {
+                    _timer?.Dispose();
+                }
+            }, null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
+        }
+
+        public override async Task OnActivateAsync()
+        {
+            ResetTimer();
+            await base.OnActivateAsync();
+        }
 
         public void Dispose()
         {
@@ -34,6 +62,7 @@ namespace Wanderland.Web.Server.Grains
             }
 
             World.ClearStateAsync();
+            _timer?.Dispose();
         }
 
         public async Task<bool> IsWorldEmpty()
