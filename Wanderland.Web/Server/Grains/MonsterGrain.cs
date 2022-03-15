@@ -46,7 +46,7 @@ namespace Wanderland.Web.Server.Grains
         {
             // eat the first wanderer you see, if there are any
             var tile = await tileGrain.GetTile();
-            var theUnfortunate = tile.WanderersHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
+            var theUnfortunate = tile.ThingsHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
             theUnfortunate.ForEach(async _ =>
             {
                 Wanderer.State.AvatarImageUrl = WINK_IMAGE_PATH;

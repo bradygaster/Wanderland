@@ -133,9 +133,9 @@ app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFact
     var tileGrain = grainFactory.GetGrain<ITileGrain>($"{name}/{row}/{column}");
     var tile = await tileGrain.GetTile();
 
-    if(tile.WanderersHere.Any() && tile.Type == TileType.Barrier)
+    if(tile.ThingsHere.Any() && tile.Type == TileType.Barrier)
     {
-        tile.WanderersHere.Clear();
+        tile.ThingsHere.Clear();
     }
 
     return Results.Ok(tile);
@@ -172,7 +172,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
             var tileGrain = grainFactory.GetGrain<ITileGrain>(nextTileGrainId);
             var tile = await tileGrain.GetTile();
 
-            tile.WanderersHere.Clear();
+            tile.ThingsHere.Clear();
             await tileGrain.SetTileInfo(tile);
 
             if (tile.Type != TileType.Barrier)

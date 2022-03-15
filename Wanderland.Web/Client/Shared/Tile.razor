@@ -8,7 +8,7 @@
     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
         @if (Model != null)
         {
-            @foreach (var wanderer in Model.WanderersHere)
+            @foreach (var wanderer in Model.ThingsHere)
             {
                 if (string.IsNullOrEmpty(wanderer.AvatarImageUrl))
                 {

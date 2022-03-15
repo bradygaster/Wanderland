@@ -26,18 +26,18 @@ namespace Wanderland.Web.Server.Grains
 
         async Task ITileGrain.Arrives(Thing thing)
         {
-            if(!Tile.State.WanderersHere.Any(x => x.Name == thing.Name))
+            if(!Tile.State.ThingsHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.Add(thing);
+                Tile.State.ThingsHere.Add(thing);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
 
         async Task ITileGrain.Leaves(Thing thing)
         {
-            if (Tile.State.WanderersHere.Any(x => x.Name == thing.Name))
+            if (Tile.State.ThingsHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.RemoveAll(x => x.Name == thing.Name);
+                Tile.State.ThingsHere.RemoveAll(x => x.Name == thing.Name);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
