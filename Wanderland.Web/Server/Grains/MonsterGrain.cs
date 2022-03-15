@@ -19,6 +19,7 @@ namespace Wanderland.Web.Server.Grains
 
         public async Task Eat(IWanderGrain grain)
         {
+            Wanderer.State.AvatarImageUrl = WINK_IMAGE_PATH;
             var deadWanderer = await grain.GetWanderer();
             grain.Dispose();
             await SpeedUp(4);
