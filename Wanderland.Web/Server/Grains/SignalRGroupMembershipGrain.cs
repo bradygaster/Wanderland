@@ -6,6 +6,12 @@ using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
+    public interface ISignalRGroupMembershipGrain : IGrainWithGuidKey
+    {
+        Task ChangeClientWorldGroupMembership(string connectionId, string worldName);
+        Task ClientDisconnects(string connectionId);
+    }
+
     public class SignalRGroupMembershipGrain : Grain, ISignalRGroupMembershipGrain
     {
         private IPersistentState<List<SignalRConnectionToWorldMap>> GroupMemberships { get; }
