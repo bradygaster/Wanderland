@@ -81,14 +81,14 @@ namespace Wanderland.Web.Server.Grains
             _timer.Dispose();
         }
 
-        public Task SpeedUp(int ratio)
+        public virtual Task SpeedUp(int ratio)
         {
             Wanderer.State.Speed = Wanderer.State.Speed - (Wanderer.State.Speed / ratio);
             ResetWanderTimer();
             return Task.CompletedTask;
         }
 
-        public Task SlowDown(int ratio)
+        public virtual Task SlowDown(int ratio)
         {
             Wanderer.State.Speed = Wanderer.State.Speed + (Wanderer.State.Speed / ratio);
             ResetWanderTimer();
