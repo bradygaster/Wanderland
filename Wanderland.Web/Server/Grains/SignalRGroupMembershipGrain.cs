@@ -33,7 +33,11 @@ namespace Wanderland.Web.Server.Grains
         {
             await ClientDisconnects(connectionId);
             await WanderlandHub.Groups.AddToGroupAsync(connectionId, worldName);
-            GroupMemberships.State.Add(new SignalRConnectionToWorldMap { ConnectionId = connectionId, World = worldName });
+            GroupMemberships.State.Add(new SignalRConnectionToWorldMap 
+            { 
+                ConnectionId = connectionId, 
+                World = worldName 
+            });
             await GroupMemberships.WriteStateAsync();
         }
 
