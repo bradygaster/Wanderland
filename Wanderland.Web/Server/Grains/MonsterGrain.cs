@@ -30,27 +30,32 @@ namespace Wanderland.Web.Server.Grains
             await base.SetInfo(wanderer);
         }
 
+        ITileGrain _currentTileGrain;
         public override async Task SetLocation(ITileGrain tileGrain)
         {
-            // before the monster leaves, he must eat
-            var tile = await tileGrain.GetTile();
+            Wanderer.State.AvatarImageUrl = MONSTER_IMAGE_PATH;
+            if(_currentTileGrain != null)
+            {
+                await EatEverythingHere(_currentTileGrain);
+            }
+            _currentTileGrain = tileGrain;
+            await base.SetLocation(tileGrain);
+        }
 
+        private async Task EatEverythingHere(ITileGrain tileGrain)
+        {
             // eat the first wanderer you see, if there are any
-            var theUnfortunate = tile.WanderersHere.FirstOrDefault();
-            if(theUnfortunate != null && theUnfortunate.Name != ((Grain)this).GetPrimaryKeyString())
+            var tile = await tileGrain.GetTile();
+            var theUnfortunate = tile.WanderersHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
+            theUnfortunate.ForEach(async _ =>
             {
                 Wanderer.State.AvatarImageUrl = WINK_IMAGE_PATH;
-                await base.SetLocation(tileGrain);
 
-                var unfortunateGrain = GrainFactory.GetGrain<IWanderGrain>(theUnfortunate.Name, typeof(WandererGrain).FullName);
+                var unfortunateGrain = GrainFactory.GetGrain<IWanderGrain>(_.Name, typeof(WandererGrain).FullName);
                 await Eat(unfortunateGrain);
                 await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
                 unfortunateGrain.Dispose();
-
-            }
-
-            Wanderer.State.AvatarImageUrl = MONSTER_IMAGE_PATH;
-            await base.SetLocation(tileGrain);
+            });
         }
     }
 }
