@@ -10,5 +10,13 @@ namespace Wanderland.Web.Shared
         Task SetInfo(Wanderer wanderer);
         Task SpeedUp(int ratio);
         Task SlowDown(int ratio);
+        Task<bool> CanGoWest();
+        Task GoWest();
+        Task<bool> CanGoNorth();
+        Task GoNorth();
+        Task<bool> CanGoSouth();
+        Task GoSouth();
+        Task<bool> CanGoEast();
+        Task GoEast();
     }
 }
