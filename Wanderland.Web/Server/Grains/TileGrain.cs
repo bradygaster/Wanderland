@@ -24,22 +24,20 @@ namespace Wanderland.Web.Server.Grains
             WanderlandHubContext = wanderlandHubContext;
         }
 
-        async Task ITileGrain.Arrives(IWanderGrain wanderer)
+        async Task ITileGrain.Arrives(Thing thing)
         {
-            var wandererName = wanderer.GetPrimaryKeyString();
-            if(!Tile.State.WanderersHere.Any(x => x.Name == wandererName))
+            if(!Tile.State.WanderersHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.Add(await wanderer.GetWanderer());
+                Tile.State.WanderersHere.Add(thing);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }
 
-        async Task ITileGrain.Leaves(IWanderGrain wanderer)
+        async Task ITileGrain.Leaves(Thing thing)
         {
-            var wandererName = wanderer.GetPrimaryKeyString();
-            if (Tile.State.WanderersHere.Any(x => x.Name == wandererName))
+            if (Tile.State.WanderersHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.RemoveAll(x => x.Name == wandererName);
+                Tile.State.WanderersHere.RemoveAll(x => x.Name == thing.Name);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
             }
         }

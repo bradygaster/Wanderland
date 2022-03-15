@@ -44,7 +44,9 @@ namespace Wanderland.Web.Server.Grains
 
                 var unfortunateGrain = GrainFactory.GetGrain<IWanderGrain>(theUnfortunate.Name, typeof(WandererGrain).FullName);
                 await Eat(unfortunateGrain);
-                await tileGrain.Leaves(unfortunateGrain);
+                await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
+                unfortunateGrain.Dispose();
+
             }
 
             Wanderer.State.AvatarImageUrl = MONSTER_IMAGE_PATH;

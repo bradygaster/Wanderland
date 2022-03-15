@@ -67,15 +67,14 @@
         if (Model?.Type == TileType.Barrier)
             return Colors.Shades.Black;
 
-        if (Model?.Column == 0) return Colors.DeepPurple.Darken1;
+        if (Model?.Column == 0) return Colors.DeepPurple.Darken3;
         if (Model?.Column == 1) return Colors.DeepPurple.Darken2;
         if (Model?.Column == 2) return Colors.DeepPurple.Darken1;
-        if (Model?.Column == 3) return Colors.DeepPurple.Default;
-        if (Model?.Column == 4) return Colors.DeepPurple.Lighten1;
-        if (Model?.Column == 5) return Colors.DeepPurple.Default;
-        if (Model?.Column == 6) return Colors.DeepPurple.Darken1;
-        if (Model?.Column == 7) return Colors.DeepPurple.Darken2;
-        if (Model?.Column == 8) return Colors.DeepPurple.Darken1;
+        if (Model?.Column >= 3 || Model?.Column <= 5) return Colors.DeepPurple.Default;
+        if (Model?.Column == 6) return Colors.DeepPurple.Lighten1;
+        if (Model?.Column == 7) return Colors.DeepPurple.Lighten2;
+        if (Model?.Column == 8) return Colors.DeepPurple.Lighten3;
+        if (Model?.Column == 9) return Colors.DeepPurple.Lighten4;
         
         return Colors.BlueGrey.Darken3;
     }

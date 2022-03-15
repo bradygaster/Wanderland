@@ -65,7 +65,7 @@ namespace Wanderland.Web.Server.Grains
         {
             Wanderer.State.Name = this.GetPrimaryKeyString();
             Wanderer.State.CurrentLocation = await tileGrain.GetTile();
-            await tileGrain.Arrives(this);
+            await tileGrain.Arrives(Wanderer.State);
         }
 
         public async Task Wander()
@@ -140,7 +140,8 @@ namespace Wanderland.Web.Server.Grains
                         if(Wanderer.State.CurrentLocation != null)
                         {
                             // leave the old tile
-                            await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
+                            var tileGrainId = $"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}";
+                            await GrainFactory.GetGrain<ITileGrain>(tileGrainId).Leaves(Wanderer.State);
 
                             // move to the next tile
                             var nextTileGrainId = options[new Random().Next(0, options.Count)];
@@ -162,7 +163,6 @@ namespace Wanderland.Web.Server.Grains
         public void Dispose()
         {
             _timer.Dispose();
-            Wanderer.ClearStateAsync();
         }
 
         public Task SpeedUp(int ratio)

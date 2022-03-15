@@ -6,7 +6,7 @@ namespace Wanderland.Web.Shared
     {
         Task SetTileInfo(Tile tile);
         Task<Tile> GetTile();
-        Task Arrives(IWanderGrain wanderer);
-        Task Leaves(IWanderGrain wanderer);
+        Task Arrives(Thing thing);
+        Task Leaves(Thing thing);
     }
 }

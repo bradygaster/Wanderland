@@ -73,18 +73,8 @@ namespace Wanderland.Web.Server.Grains
 
             if(wandererCount == 1)
             {
-                try
-                {
-                    var winnerGrain = GrainFactory.GetGrain<IWanderGrain>(wanderersLeft[0], typeof(WandererGrain).FullName);
-                    // todo: record their win
-                    winnerGrain.Dispose();
-                }
-                catch
-                {
-                    // if that failed, it must be a monster grain, so treat it different
-                    var winnerGrain = GrainFactory.GetGrain<IMonsterGrain>(wanderersLeft[0], typeof(MonsterGrain).FullName);
-                    winnerGrain.Dispose();
-                }
+                var winnerGrain = GrainFactory.GetGrain<IMonsterGrain>(wanderersLeft[0], typeof(MonsterGrain).FullName);
+                winnerGrain.Dispose();
             }
 
             return wandererCount <= 1;
