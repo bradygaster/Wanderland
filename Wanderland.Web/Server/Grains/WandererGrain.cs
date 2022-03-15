@@ -129,7 +129,7 @@ namespace Wanderland.Web.Server.Grains
             }
         }
 
-        public async Task<bool> CanGoWest()
+        public virtual async Task<bool> CanGoWest()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             if (!(currentTile.Column > 0)) return false;
@@ -137,7 +137,7 @@ namespace Wanderland.Web.Server.Grains
             return tileWest.Type == TileType.Space;
         }
 
-        public async Task GoWest()
+        public virtual async Task GoWest()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             int colLeft = currentTile.Column - 1;
@@ -145,7 +145,7 @@ namespace Wanderland.Web.Server.Grains
             await Go(tileGrainName);
         }
 
-        public async Task<bool> CanGoNorth()
+        public virtual async Task<bool> CanGoNorth()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             if (!(currentTile.Row > 0)) return false;
@@ -153,7 +153,7 @@ namespace Wanderland.Web.Server.Grains
             return tileNorth.Type == TileType.Space;
         }
 
-        public async Task GoNorth()
+        public virtual async Task GoNorth()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             int rowUp = currentTile.Row - 1;
@@ -161,7 +161,7 @@ namespace Wanderland.Web.Server.Grains
             await Go(tileGrainName);
         }
 
-        public async Task<bool> CanGoSouth()
+        public virtual async Task<bool> CanGoSouth()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             if (!(currentTile.Row < World.Rows - 1)) return false;
@@ -169,7 +169,7 @@ namespace Wanderland.Web.Server.Grains
             return tileSouth.Type == TileType.Space;
         }
 
-        public async Task GoSouth()
+        public virtual async Task GoSouth()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             int rowDown = currentTile.Row + 1;
@@ -177,7 +177,7 @@ namespace Wanderland.Web.Server.Grains
             await Go(tileGrainName);
         }
 
-        public async Task<bool> CanGoEast()
+        public virtual async Task<bool> CanGoEast()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             if (!(currentTile.Column < World.Columns - 1)) return false;
@@ -185,7 +185,7 @@ namespace Wanderland.Web.Server.Grains
             return tileEast.Type == TileType.Space;
         }
 
-        public async Task GoEast()
+        public virtual async Task GoEast()
         {
             var currentTile = Wanderer.State.CurrentLocation;
             int colRight = currentTile.Column + 1;

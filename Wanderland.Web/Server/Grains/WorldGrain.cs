@@ -60,7 +60,7 @@ namespace Wanderland.Web.Server.Grains
                     string grainKey = $"{World.State.Name}/{row}/{col}";
                     var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
                     var tile = await tileGrain.GetTile();
-                    wandererCount += tile.ThingsHere.Count;
+                    wandererCount += tile.ThingsHere.Where(x => x.GetType() == typeof(Wanderer)).Count();
                     if(tile.ThingsHere.Count > 0)
                     {
                         foreach (var wanderer in tile.ThingsHere)
