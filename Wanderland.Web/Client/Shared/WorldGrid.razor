@@ -63,7 +63,6 @@
     private void OnWorldAgeUpdated(object? sender, WorldAgeUpdatedEventArgs args)
     {
         _age = args.Age;
-        Console.WriteLine($"World {args.World} has an age of {args.Age.Minutes}:{args.Age.Seconds}:{args.Age.Milliseconds}.");
         base.StateHasChanged();
     }
 }

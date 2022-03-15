@@ -11,6 +11,8 @@ namespace Wanderland.Web.Server.Grains
         public IPersistentState<List<string>> Worlds { get; }
         public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
         public ILogger<CreatorGrain> Logger { get; }
+        public DateTime DateStarted { get; }
+        public int WorldsCompleted { get; set; }
 
         public CreatorGrain([PersistentState(Constants.PersistenceKeys.WorldListStateName, Constants.PersistenceKeys.WorldListStorageName)]
             IPersistentState<List<string>> worlds,
@@ -21,6 +23,7 @@ namespace Wanderland.Web.Server.Grains
             Worlds = worlds;
             WanderlandHubContext = wanderlandHub;
             Logger = logger;
+            DateStarted = DateTime.Now;
         }
 
         IDisposable _timer;
@@ -29,6 +32,20 @@ namespace Wanderland.Web.Server.Grains
             _timer?.Dispose();
             _timer = RegisterTimer(async _ =>
             {
+                var managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
+                var grainCount = await managementGrain.GetTotalActivationCount();
+
+                await WanderlandHubContext.Clients.All.SystemStatusReceived(new SystemStatusUpdateReceivedEventArgs
+                {
+                    SystemStatusUpdate = new SystemStatusUpdate
+                    {
+                        DateStarted = DateStarted,
+                        GrainsActive = grainCount,
+                        TimeUp = DateTime.Now - DateStarted,
+                        WorldsCompleted = this.WorldsCompleted
+                    }
+                });
+
                 var removes = new List<string>();
                 foreach (var world in Worlds.State)
                 {
@@ -44,12 +61,13 @@ namespace Wanderland.Web.Server.Grains
                     foreach (var remove in removes)
                     {
                         Logger.LogInformation($"Removing world {remove} since it has only one wanderer left.");
+                        WorldsCompleted += 1;
                         await WanderlandHubContext.Clients.All.WorldListUpdated();
                         Worlds.State.Remove(remove);
                     }
                 }
 
-            }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+            }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
 
             return base.OnActivateAsync();
         }
@@ -112,6 +130,7 @@ namespace Wanderland.Web.Server.Grains
         {
             Worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
             await WanderlandHubContext.Clients.All.WorldListUpdated();
+            WorldsCompleted += 1;
         }
     }
 }
