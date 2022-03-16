@@ -2,46 +2,13 @@
 @inject WanderlandHubClient _hubClient
 
 <MudAppBar Style='@($"background:{Colors.DeepPurple.Default}")' Fixed="false">
+    <MudSpacer />
     <MudText Typo="Typo.subtitle1" Class="px-4">wanderland.cloud</MudText>
     <MudSpacer />
-    @if(_latestUpdate != null)
-    {
-    <MudText Typo="Typo.subtitle1" Class="px-3">Up Since</MudText>
-    <MudText Typo="Typo.subtitle2" Class="px-2">@_latestUpdate.DateStarted</MudText>
-    <MudSpacer />
-    <MudText Typo="Typo.subtitle1" Class="px-3">Up Time</MudText>
-    <MudText Typo="Typo.subtitle2" Class="px-2">@_latestUpdate.TimeUp</MudText>
-    <MudSpacer />
-    <MudText Typo="Typo.subtitle1" Class="px-3">Grains Active</MudText>
-    <MudText Typo="Typo.subtitle2" Class="px-2">@_latestUpdate.GrainsActive</MudText>
-    <MudSpacer />
-    <MudText Typo="Typo.subtitle1" Class="px-3">Worlds Completed</MudText>
-    <MudText Typo="Typo.subtitle2" Class="px-2">@_latestUpdate.WorldsCompleted</MudText>
-    <MudSpacer />
-    }
-    <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Inherit"
-                   Link="/dashboard" Target="_blank" />
     <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"
                    Link="https://github.com/bradygaster/wanderland" Target="_blank" />
 </MudAppBar>
 
 @code
 {
-    SystemStatusUpdate _latestUpdate;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _hubClient.SystemStatusUpdate -= OnSystemUpdateReceived;
-        _hubClient.SystemStatusUpdate += OnSystemUpdateReceived;
-        await base.OnInitializedAsync();
-    }
-
-    private void OnSystemUpdateReceived(object? sender, SystemStatusUpdateReceivedEventArgs args)
-    {
-        Console.WriteLine($"Update: Server running {args.SystemStatusUpdate.TimeUp} started on {args.SystemStatusUpdate.DateStarted}, with {args.SystemStatusUpdate.GrainsActive} grains active, and {args.SystemStatusUpdate.WorldsCompleted} worlds completed.");
-
-        _latestUpdate = args.SystemStatusUpdate;
-
-        base.StateHasChanged();
-    }
 }

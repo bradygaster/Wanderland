@@ -20,6 +20,7 @@ namespace Wanderland.Web.Server
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
                 siloBuilder.UseDashboard(options =>
                 {
+                    options.HideTrace = true;
                     options.HostSelf = false;
                 });
             });

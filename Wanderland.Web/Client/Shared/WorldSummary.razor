@@ -1,0 +1,43 @@
+﻿@inject WanderlandHubClient _hubClient
+@inject IWanderlandHttpApiClient _apiClient
+
+<MudPaper>
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">@WorldName</MudText>
+                <MudText Typo="Typo.subtitle1">Current World</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Default"
+                               OnClick="_ => { _apiClient.DeleteWorld(WorldName); StateHasChanged(); }" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudListItem title="World age" Avatar="@Icons.Material.Filled.Timer" IconColor="Color.Primary">
+                <MudText Typo="Typo.subtitle1" Class="d-block">World age</MudText>
+                <MudText Typo="Typo.subtitle2" Class="d-block">@($"{_age.ToString("hh\\:mm\\:ss")}")</MudText>
+            </MudListItem>
+        </MudCardContent>
+    </MudCard>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string? WorldName { get; set; }
+    private TimeSpan _age;
+
+    protected override void OnInitialized()
+    {
+        _hubClient.WorldAgeUpdate -= OnWorldAgeUpdated;
+        _hubClient.WorldAgeUpdate += OnWorldAgeUpdated;
+
+        base.OnInitialized();
+    }
+
+    private void OnWorldAgeUpdated(object? sender, WorldAgeUpdatedEventArgs args)
+    {
+        _age = args.Age;
+        base.StateHasChanged();
+    }
+}

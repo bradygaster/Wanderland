@@ -22,25 +22,36 @@ namespace Wanderland.Web.Server.Grains
         public IPersistentState<World> World { get; }
         public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHub { get; }
 
+        int _worldLifetimeThresholdInMinutes = 5;
         IDisposable _timer;
-        private void ResetTimer()
+        private async void ResetTimer()
         {
             _timer?.Dispose();
             _timer = RegisterTimer(async _ =>
             {
                 try
                 {
-                    await WanderlandHub.Clients.Group(World.State.Name).WorldAgeUpdated(new WorldAgeUpdatedEventArgs
+                    var started = World.State.Started;
+                    var expires = started.AddMinutes(_worldLifetimeThresholdInMinutes);
+                    if (DateTime.Now > expires)
                     {
-                        World = World.State.Name,
-                        Age = World.State.Started - DateTime.Now
-                    });
+                        await GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(this);
+                        _timer?.Dispose();
+                    }
+                    else
+                    {
+                        await WanderlandHub.Clients.Group(World.State.Name).WorldAgeUpdated(new WorldAgeUpdatedEventArgs
+                        {
+                            World = World.State.Name,
+                            Age = World.State.Started - DateTime.Now
+                        });
+                    }
                 }
                 catch
                 {
                     _timer?.Dispose();
                 }
-            }, null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
+            }, null, TimeSpan.FromMilliseconds(1000), TimeSpan.FromMilliseconds(1000));
         }
 
         public override async Task OnActivateAsync()

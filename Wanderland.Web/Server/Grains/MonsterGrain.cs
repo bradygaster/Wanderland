@@ -8,18 +8,44 @@ namespace Wanderland.Web.Server.Grains
     [CollectionAgeLimit(Minutes = 2)]
     public class MonsterGrain : WandererGrain, IMonsterGrain
     {
-        const string MONSTER_IMAGE_PATH = "/img/monster.png";
-        const string WINK_IMAGE_PATH = "/img/wink.png";
+        const string MONSTER_LEFT = "/img/monster-left.png";
+        const string MONSTER_RIGHT = "/img/monster-right.png";
+        const string MONSTER_UP = "/img/monster-up.png";
+        const string MONSTER_DOWN = "/img/monster-down.png";
+        const string MONSTER = "/img/monster.png";
 
         public MonsterGrain(
             [PersistentState("wanderer", "wandererStorage")] IPersistentState<Wanderer> wanderer, 
             ILogger<WandererGrain> logger) : base(wanderer, logger)
         {
         }
+        public override Task GoNorth()
+        {
+            Wanderer.State.AvatarImageUrl = MONSTER_UP;
+            return base.GoNorth();
+        }
+
+        public override Task GoWest()
+        {
+            Wanderer.State.AvatarImageUrl = MONSTER_LEFT;
+            return base.GoWest();
+        }
+
+        public override Task GoSouth()
+        {
+            Wanderer.State.AvatarImageUrl = MONSTER_DOWN;
+            return base.GoSouth();
+        }
+
+        public override Task GoEast()
+        {
+            Wanderer.State.AvatarImageUrl = MONSTER_RIGHT;
+            return base.GoEast();
+        }
 
         public async Task Eat(IWanderGrain grain)
         {
-            Wanderer.State.AvatarImageUrl = WINK_IMAGE_PATH;
+            Wanderer.State.AvatarImageUrl = MONSTER;
             var deadWanderer = await grain.GetWanderer();
             grain.Dispose();
             await SpeedUp(4);
@@ -27,14 +53,12 @@ namespace Wanderland.Web.Server.Grains
 
         public override async Task SetInfo(Wanderer wanderer)
         {
-            Wanderer.State.AvatarImageUrl = MONSTER_IMAGE_PATH;
             await base.SetInfo(wanderer);
         }
 
         ITileGrain _currentTileGrain;
         public override async Task SetLocation(ITileGrain tileGrain)
         {
-            Wanderer.State.AvatarImageUrl = MONSTER_IMAGE_PATH;
             if(_currentTileGrain != null)
             {
                 await EatEverythingHere(_currentTileGrain);
@@ -50,8 +74,6 @@ namespace Wanderland.Web.Server.Grains
             var theUnfortunate = tile.ThingsHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
             theUnfortunate.ForEach(async _ =>
             {
-                Wanderer.State.AvatarImageUrl = WINK_IMAGE_PATH;
-
                 var unfortunateGrain = GrainFactory.GetGrain<IWanderGrain>(_.Name, typeof(WandererGrain).FullName);
                 await Eat(unfortunateGrain);
                 await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
