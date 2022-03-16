@@ -4,10 +4,13 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationInsightsResourceId>/subscriptions/1136a23b-ebc0-4c06-992a-2c343fcdce4b/resourceGroups/wanderland-dev/providers/microsoft.insights/components/wanderland-ai</ApplicationInsightsResourceId>
+		<UserSecretsId>aebdb80a-d78c-4b3d-95e5-7c6123868023</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Bogus" Version="34.0.1" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.2" />
 		<PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.6.0">
 		  <PrivateAssets>all</PrivateAssets>

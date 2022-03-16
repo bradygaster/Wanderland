@@ -7,9 +7,9 @@ using Wanderland.Web.Shared;
 var builder = WebApplication.CreateBuilder(args);
 builder.SetupServices();
 builder.SetupOrleansSilo();
+builder.SetupApplicationInsights();
 
 var app = builder.Build();
-
 app.SetupApp();
 
 // create a new world

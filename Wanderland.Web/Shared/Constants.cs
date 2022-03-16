@@ -16,6 +16,11 @@
             public const string GroupStorageName = "groupStorage";
         }
 
+        public static class EnvironmentVariableNames
+        {
+            public const string ApplicationInsightsConnectionString = "APPLICATIONINSIGHTS_CONNECTION_STRING";
+        }
+
         public static class Routes
         {
             public const string WanderlandSignalRHubRoute = "hubs/wanderland";
