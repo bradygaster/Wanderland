@@ -1,6 +1,8 @@
-﻿namespace Wanderland.Web.Shared
+﻿using Orleans;
+
+namespace Wanderland.Web.Shared
 {
-    public interface IMonsterGrain : IWandererGrain
+    public interface IMonsterGrain : IWander, IGrainWithStringKey
     {
         Task Eat(IWandererGrain grain);
     }

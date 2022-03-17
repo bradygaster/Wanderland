@@ -1,15 +1,9 @@
-﻿using Orleans;
-
-namespace Wanderland.Web.Shared
+﻿namespace Wanderland.Web.Shared
 {
-    public interface IWandererGrain : IWanderGrain, IGrainWithStringKey
+    public interface IWander : IDisposable
     {
         Task<Wanderer> GetWanderer();
         Task SetInfo(Wanderer wanderer);
-    }
-
-    public interface IWanderGrain : IDisposable
-    {
         Task Wander();
         Task SetLocation(ITileGrain tileGrain);
         Task SpeedUp(int ratio);
