@@ -6,9 +6,11 @@ namespace Wanderland.Web.Server
     {
         public static WebApplicationBuilder SetupApplicationInsights(this WebApplicationBuilder builder)
         {
-            builder.Services.AddApplicationInsightsTelemetry(
-                builder.Configuration.GetValue<string>(Constants.EnvironmentVariableNames.ApplicationInsightsConnectionString)
-            );
+            var aiCnStr = builder.Configuration.GetValue<string>(Constants.EnvironmentVariableNames.ApplicationInsightsConnectionString);
+            if(!string.IsNullOrEmpty(aiCnStr))
+            {
+                builder.Services.AddApplicationInsightsTelemetry(aiCnStr);
+            }
 
             return builder;
         }

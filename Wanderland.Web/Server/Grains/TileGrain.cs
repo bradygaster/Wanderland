@@ -30,6 +30,7 @@ namespace Wanderland.Web.Server.Grains
             {
                 Tile.State.ThingsHere.Add(thing);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
+                await GrainFactory.GetGrain<IWorldGrain>(Tile.State.World).SetTile(Tile.State);
             }
         }
 
@@ -39,6 +40,7 @@ namespace Wanderland.Web.Server.Grains
             {
                 Tile.State.ThingsHere.RemoveAll(x => x.Name == thing.Name);
                 await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
+                await GrainFactory.GetGrain<IWorldGrain>(Tile.State.World).SetTile(Tile.State);
             }
         }
 
@@ -47,7 +49,7 @@ namespace Wanderland.Web.Server.Grains
             return Task.FromResult(Tile.State);
         }
 
-        Task ITileGrain.SetTileInfo(Tile tile)
+        Task ITileGrain.SetTile(Tile tile)
         {
             Tile.State = tile;
             return Task.CompletedTask;

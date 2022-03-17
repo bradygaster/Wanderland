@@ -61,7 +61,6 @@ namespace Wanderland.Web.Server.Grains
                 {
                     foreach (var remove in removes)
                     {
-                        Logger.LogInformation($"Removing world {remove} since it has only one wanderer left.");
                         WorldsCompleted += 1;
                         await WanderlandHubContext.Clients.All.WorldListUpdated();
                         Worlds.State.Remove(remove);
@@ -94,7 +93,7 @@ namespace Wanderland.Web.Server.Grains
                 {
                     for (int col = 0; col < world.Columns; col++)
                     {
-                        await worldGrain.MakeTile(new Tile
+                        await worldGrain.SetTile(new Tile
                         {
                             Row = row,
                             Column = col,
@@ -167,7 +166,7 @@ namespace Wanderland.Web.Server.Grains
                     var tile = await tileGrain.GetTile();
 
                     tile.ThingsHere.Clear();
-                    await tileGrain.SetTileInfo(tile);
+                    await tileGrain.SetTile(tile);
 
                     if (tile.Type != TileType.Barrier)
                     {
@@ -187,7 +186,7 @@ namespace Wanderland.Web.Server.Grains
                 // now add a monster
                 var monsterName = $"monster-{Environment.TickCount}";
                 var monsterGrain = GrainFactory.GetGrain<IMonsterGrain>(monsterName, grainClassNamePrefix: typeof(MonsterGrain).FullName);
-                await monsterGrain.SetInfo(new Wanderer
+                await monsterGrain.SetInfo(new Monster
                 {
                     Name = monsterName,
                     Speed = new Random().Next(300, 800)

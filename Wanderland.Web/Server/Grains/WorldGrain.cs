@@ -10,17 +10,19 @@ namespace Wanderland.Web.Server.Grains
     [CollectionAgeLimit(Minutes = 2)]
     public class WorldGrain : Grain, IWorldGrain
     {
-        public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName, 
+        public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName,
             Constants.PersistenceKeys.WorldStorageName)]
             IPersistentState<World> world,
-            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub)
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHub, ILogger<WorldGrain> logger)
         {
             World = world;
             WanderlandHub = wanderlandHub;
+            Logger = logger;
         }
 
         public IPersistentState<World> World { get; }
         public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHub { get; }
+        public ILogger<WorldGrain> Logger { get; set; }
 
         int _worldLifetimeThresholdInMinutes = 5;
         IDisposable _timer;
@@ -62,33 +64,10 @@ namespace Wanderland.Web.Server.Grains
 
         public async Task<bool> IsWorldEmpty()
         {
-            var wanderersLeft = new List<string>();
-            int wandererCount = 0;
-            for (int row = 0; row < World.State.Rows; row++)
-            {
-                for (int col = 0; col < World.State.Columns; col++)
-                {
-                    string grainKey = $"{World.State.Name}/{row}/{col}";
-                    var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
-                    var tile = await tileGrain.GetTile();
-                    wandererCount += tile.ThingsHere.Where(x => x.GetType() == typeof(Wanderer)).Count();
-                    if(tile.ThingsHere.Count > 0)
-                    {
-                        foreach (var wanderer in tile.ThingsHere)
-                        {
-                            wanderersLeft.Add(wanderer.Name);
-                        }
-                    }
-                }
-            }
+            var thingsLeft = World.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
+            Logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {World.State.Name}");
 
-            if(wandererCount == 1)
-            {
-                var winnerGrain = GrainFactory.GetGrain<IMonsterGrain>(wanderersLeft[0], typeof(MonsterGrain).FullName);
-                winnerGrain.Dispose();
-            }
-
-            return wandererCount <= 1;
+            return !thingsLeft.Any();
         }
 
         Task<World> IWorldGrain.GetWorld()
@@ -96,12 +75,20 @@ namespace Wanderland.Web.Server.Grains
             return Task.FromResult(World.State);
         }
 
-        async Task<ITileGrain> IWorldGrain.MakeTile(Tile tile)
+        async Task IWorldGrain.SetTile(Tile tile)
         {
-            string grainKey = $"{World.State.Name}/{tile.Row}/{tile.Column}";
-            var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
-            await tileGrain.SetTileInfo(tile);
-            return tileGrain;
+            if(!World.State.Tiles.Any(x => x.Row == tile.Row && x.Column == tile.Column))
+            {
+                World.State.Tiles.Add(tile);
+
+                string grainKey = $"{World.State.Name}/{tile.Row}/{tile.Column}";
+                var tileGrain = base.GrainFactory.GetGrain<ITileGrain>(grainKey);
+                await tileGrain.SetTile(tile);
+            }
+            else
+            {
+                World.State.Tiles.First(x => x.Row == tile.Row && x.Column == tile.Column).ThingsHere = tile.ThingsHere;
+            }
         }
 
         Task IWorldGrain.SetWorld(World world)

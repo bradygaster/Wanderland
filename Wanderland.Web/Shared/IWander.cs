@@ -2,8 +2,6 @@
 {
     public interface IWander : IDisposable
     {
-        Task<Wanderer> GetWanderer();
-        Task SetInfo(Wanderer wanderer);
         Task Wander();
         Task SetLocation(ITileGrain tileGrain);
         Task SpeedUp(int ratio);

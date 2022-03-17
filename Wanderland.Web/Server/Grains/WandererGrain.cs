@@ -19,12 +19,6 @@ namespace Wanderland.Web.Server.Grains
         public ILogger<WandererGrain> Logger { get; }
         public World World { get; set; }
 
-        public Task<Wanderer> GetWanderer()
-        {
-            Wanderer.State.Name = this.GetPrimaryKeyString();
-            return Task.FromResult(Wanderer.State);
-        }
-
         private TimeSpan GetMoveDuration()
         {
             return TimeSpan.FromMilliseconds(Wanderer.State.Speed);
@@ -62,11 +56,10 @@ namespace Wanderland.Web.Server.Grains
             return base.OnDeactivateAsync();
         }
 
-        public virtual async Task SetLocation(ITileGrain tileGrain)
+        public Task<Wanderer> GetWanderer()
         {
             Wanderer.State.Name = this.GetPrimaryKeyString();
-            Wanderer.State.CurrentLocation = await tileGrain.GetTile();
-            await tileGrain.Arrives(Wanderer.State);
+            return Task.FromResult(Wanderer.State);
         }
 
         public async virtual Task SetInfo(Wanderer wanderer)
@@ -74,6 +67,13 @@ namespace Wanderland.Web.Server.Grains
             Wanderer.State = wanderer;
             await Wanderer.WriteStateAsync();
             ResetWanderTimer();
+        }
+
+        public virtual async Task SetLocation(ITileGrain tileGrain)
+        {
+            Wanderer.State.Name = this.GetPrimaryKeyString();
+            Wanderer.State.CurrentLocation = await tileGrain.GetTile();
+            await tileGrain.Arrives(Wanderer.State);
         }
 
         public void Dispose()

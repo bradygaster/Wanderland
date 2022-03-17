@@ -64,6 +64,16 @@ namespace Wanderland.Web.Server.Grains
             await EatEverythingHere(tileGrain);
         }
 
+        async Task<Monster> IMonsterGrain.GetWanderer()
+        {
+            return await base.GetWanderer() as Monster;
+        }
+
+        public async Task SetInfo(Monster wanderer)
+        {
+            await base.SetInfo(wanderer);
+        }
+
         private async Task EatEverythingHere(ITileGrain tileGrain)
         {
             if (tileGrain == null) return;
