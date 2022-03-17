@@ -12,32 +12,6 @@ builder.SetupApplicationInsights();
 var app = builder.Build();
 app.SetupApp();
 
-// create a new world
-app.MapPost("/worlds", async (IGrainFactory grainFactory, int rows, int columns) =>
-{
-    if (rows > 10 || columns > 10) return Results.BadRequest("World max size is 10x10.");
-    var creator = grainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
-
-    var faker = new Faker();
-    var name = $"{faker.Address.City()}".ToLower().Replace(" ", "-");
-
-    var exists = await creator.WorldExists(name);
-    if (exists) return Results.Conflict($"World with name {name} already exists.");
-
-    var worldGrain = await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = name, Rows = rows, Columns = columns });
-    if (worldGrain != null)
-    {
-        var newWorld = await worldGrain.GetWorld();
-        return Results.Created($"/worlds/{newWorld.Name}", newWorld);
-    }
-
-    return Results.BadRequest();
-})
-.WithName("CreateNewWorld")
-.Produces(StatusCodes.Status409Conflict)
-.Produces(StatusCodes.Status400BadRequest)
-.Produces<World>(StatusCodes.Status201Created);
-
 // gets all the worlds in the list
 app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
     await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()
@@ -65,38 +39,6 @@ app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 .WithName("GetWorld")
 .Produces(StatusCodes.Status404NotFound)
 .Produces<World>(StatusCodes.Status200OK);
-
-// creates a new wanderer in the world
-app.MapPost("/worlds/{worldName}/wanderers/{wandererName}", async (IGrainFactory grainFactory, string worldName, string wandererName) =>
-{
-    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
-    if (world == null) return Results.NotFound();
-
-    var newWandererGrain = grainFactory.GetGrain<IWandererGrain>(wandererName, typeof(WandererGrain).FullName);
-    var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
-    await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
-
-    return Results.Ok(await newWandererGrain.GetWanderer());
-})
-.WithName("CreateWanderer")
-.Produces(StatusCodes.Status404NotFound)
-.Produces<Wanderer>(StatusCodes.Status200OK);
-
-// creates a new wanderer in the world
-app.MapPost("/worlds/{worldName}/monsters", async (IGrainFactory grainFactory, string worldName) =>
-{
-    var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
-    if (world == null) return Results.NotFound();
-
-    var monsterGrain = grainFactory.GetGrain<IMonsterGrain>($"monster-{Environment.TickCount}", grainClassNamePrefix: typeof(MonsterGrain).FullName);
-    var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
-    await monsterGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
-
-    return Results.Ok(await monsterGrain.GetWanderer());
-})
-.WithName("CreateMonster")
-.Produces(StatusCodes.Status404NotFound)
-.Produces<Wanderer>(StatusCodes.Status200OK);
 
 // gets all the tiles for a specific world
 app.MapGet("/worlds/{name}/tiles", async (IGrainFactory grainFactory, string name) =>

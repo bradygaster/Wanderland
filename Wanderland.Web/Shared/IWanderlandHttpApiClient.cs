@@ -4,14 +4,14 @@ namespace Wanderland.Web.Shared
 {
     public interface IWanderlandHttpApiClient
     {
+        [Delete("/worlds/{name}")]
+        Task DeleteWorld(string name);
+
         [Get("/worlds")]
         Task<List<World>> GetWorlds();
 
         [Get("/worlds/{name}")]
         Task<World> GetWorld(string name);
-
-        [Delete("/worlds/{name}")]
-        Task DeleteWorld(string name);
 
         [Get("/worlds/{name}/tiles")]
         Task<List<Tile>> GetWorldTiles(string name);
