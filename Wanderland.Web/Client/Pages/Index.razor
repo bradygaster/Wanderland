@@ -63,9 +63,5 @@ else
             WorldName = worlds.First().Name;
             StateHasChanged();
         }
-        else
-        {
-            await _apiClient.CreateRandomWorld();
-        }
     }
 }

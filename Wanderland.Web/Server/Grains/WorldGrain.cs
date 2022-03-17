@@ -24,7 +24,7 @@ namespace Wanderland.Web.Server.Grains
 
         int _worldLifetimeThresholdInMinutes = 5;
         IDisposable _timer;
-        private async void ResetTimer()
+        private  void ResetTimer()
         {
             _timer?.Dispose();
             _timer = RegisterTimer(async _ =>

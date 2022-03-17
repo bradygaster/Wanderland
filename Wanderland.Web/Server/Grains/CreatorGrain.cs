@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Bogus;
+using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Runtime;
 using Wanderland.Web.Server.Hubs;
@@ -67,6 +68,11 @@ namespace Wanderland.Web.Server.Grains
                     }
                 }
 
+                if(!Worlds.State.Any())
+                {
+                    await GenerateNewWorld();
+                }
+
             }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
 
             return base.OnActivateAsync();
@@ -133,9 +139,62 @@ namespace Wanderland.Web.Server.Grains
             WorldsCompleted += 1;
         }
 
-        public Task GenerateNewWorld()
+        public async Task GenerateNewWorld()
         {
-            throw new NotImplementedException();
+            var faker = new Faker();
+            int rows = 8;
+            int columns = 8;
+            var creator = GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+            var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
+            var worldGrain = await GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
+            if (worldGrain != null)
+            {
+                var newWorld = await worldGrain.GetWorld();
+                int wanderers = 10;
+
+                // add some wanderers
+                for (int i = 0; i < wanderers; i++)
+                {
+                    string wandererName = new Faker().Person.FirstName;
+                    var newWandererGrain = GrainFactory.GetGrain<IWandererGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
+                    await newWandererGrain.SetInfo(new Wanderer
+                    {
+                        Name = wandererName,
+                        Speed = new Random().Next(300, 800)
+                    });
+                    var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+                    var tileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
+                    var tile = await tileGrain.GetTile();
+
+                    tile.ThingsHere.Clear();
+                    await tileGrain.SetTileInfo(tile);
+
+                    if (tile.Type != TileType.Barrier)
+                    {
+                        await newWandererGrain.SetLocation(GrainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+                    }
+                    else
+                    {
+                        while (tile.Type == TileType.Barrier)
+                        {
+                            nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+                            tile = await GrainFactory.GetGrain<ITileGrain>(nextTileGrainId).GetTile();
+                        }
+                        await newWandererGrain.SetLocation(GrainFactory.GetGrain<ITileGrain>(nextTileGrainId));
+                    }
+                }
+
+                // now add a monster
+                var monsterName = $"monster-{Environment.TickCount}";
+                var monsterGrain = GrainFactory.GetGrain<IMonsterGrain>(monsterName, grainClassNamePrefix: typeof(MonsterGrain).FullName);
+                await monsterGrain.SetInfo(new Wanderer
+                {
+                    Name = monsterName,
+                    Speed = new Random().Next(300, 800)
+                });
+                var monsterTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
+                await monsterGrain.SetLocation(GrainFactory.GetGrain<ITileGrain>(monsterTileGrainId));
+            }
         }
     }
 }
