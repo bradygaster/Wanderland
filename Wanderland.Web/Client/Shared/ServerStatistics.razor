@@ -20,15 +20,15 @@
                 </MudListItem>
                 <MudListItem title="Server uptime" Avatar="@Icons.Material.Filled.Timer" IconColor="Color.Primary">
                     <MudText Typo="Typo.subtitle1" Class="d-block">Server uptime</MudText>
-                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.TimeUp</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.TimeUp.ToString("hh\\:mm\\:ss")</MudText>
                 </MudListItem>
                 <MudListItem title="Grains in the system" Avatar="@Icons.Material.Filled.Grain" IconColor="Color.Primary">
                     <MudText Typo="Typo.subtitle1" Class="d-block">Grains in the system</MudText>
-                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.GrainsActive</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.GrainsActive.ToString("N0")</MudText>
                 </MudListItem>
                 <MudListItem title="Worlds completed since start" Avatar="@Icons.Material.Filled.HolidayVillage" IconColor="Color.Primary">
                     <MudText Typo="Typo.subtitle1" Class="d-block">Worlds completed since start</MudText>
-                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.WorldsCompleted</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="d-block">@_latestUpdate.WorldsCompleted.ToString("N0")</MudText>
                 </MudListItem>
             </MudCardContent>
         </MudCard>
@@ -47,8 +47,6 @@
 
     private void OnSystemUpdateReceived(object? sender, SystemStatusUpdateReceivedEventArgs args)
     {
-        Console.WriteLine($"Update: Server running {args.SystemStatusUpdate.TimeUp} started on {args.SystemStatusUpdate.DateStarted}, with {args.SystemStatusUpdate.GrainsActive} grains active, and {args.SystemStatusUpdate.WorldsCompleted} worlds completed.");
-
         _latestUpdate = args.SystemStatusUpdate;
 
         base.StateHasChanged();
