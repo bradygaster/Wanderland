@@ -55,25 +55,18 @@ namespace Wanderland.Web.Server.Grains
             await SpeedUp(4);
         }
 
-        public override async Task SetInfo(Wanderer wanderer)
-        {
-            await base.SetInfo(wanderer);
-        }
-
         ITileGrain _currentTileGrain;
         public override async Task SetLocation(ITileGrain tileGrain)
         {
-            if(_currentTileGrain != null)
-            {
-                await EatEverythingHere(_currentTileGrain);
-            }
+            await EatEverythingHere(_currentTileGrain);
             _currentTileGrain = tileGrain;
             await base.SetLocation(tileGrain);
+            await EatEverythingHere(tileGrain);
         }
 
         private async Task EatEverythingHere(ITileGrain tileGrain)
         {
-            // eat the first wanderer you see, if there are any
+            if (tileGrain == null) return;
             var tile = await tileGrain.GetTile();
             var theUnfortunate = tile.ThingsHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
             theUnfortunate.ForEach(async _ =>
