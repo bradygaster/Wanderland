@@ -8,5 +8,6 @@ namespace Wanderland.Web.Shared
         Task DestroyWorld(IWorldGrain worldGrain);
         Task<List<World>> GetWorlds();
         Task<bool> WorldExists(string name);
+        Task GenerateNewWorld();
     }
 }

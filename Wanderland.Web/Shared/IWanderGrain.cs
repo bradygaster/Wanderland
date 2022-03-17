@@ -2,12 +2,16 @@
 
 namespace Wanderland.Web.Shared
 {
-    public interface IWanderGrain : IGrainWithStringKey, IDisposable
+    public interface IWandererGrain : IWanderGrain, IGrainWithStringKey
+    {
+        Task<Wanderer> GetWanderer();
+        Task SetInfo(Wanderer wanderer);
+    }
+
+    public interface IWanderGrain : IDisposable
     {
         Task Wander();
         Task SetLocation(ITileGrain tileGrain);
-        Task<Wanderer> GetWanderer();
-        Task SetInfo(Wanderer wanderer);
         Task SpeedUp(int ratio);
         Task SlowDown(int ratio);
         Task<bool> CanGoWest();

@@ -1,7 +1,7 @@
 ﻿namespace Wanderland.Web.Shared
 {
-    public interface IMonsterGrain : IWanderGrain
+    public interface IMonsterGrain : IWandererGrain
     {
-        Task Eat(IWanderGrain grain);
+        Task Eat(IWandererGrain grain);
     }
 }

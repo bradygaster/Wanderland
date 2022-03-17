@@ -43,7 +43,7 @@ namespace Wanderland.Web.Server.Grains
             return base.GoEast();
         }
 
-        public async Task Eat(IWanderGrain grain)
+        public async Task Eat(IWandererGrain grain)
         {
             Wanderer.State.AvatarImageUrl = MONSTER;
             var deadWanderer = await grain.GetWanderer();
@@ -74,7 +74,7 @@ namespace Wanderland.Web.Server.Grains
             var theUnfortunate = tile.ThingsHere.Where(x => x.Name != this.GetPrimaryKeyString()).ToList();
             theUnfortunate.ForEach(async _ =>
             {
-                var unfortunateGrain = GrainFactory.GetGrain<IWanderGrain>(_.Name, typeof(WandererGrain).FullName);
+                var unfortunateGrain = GrainFactory.GetGrain<IWandererGrain>(_.Name, typeof(WandererGrain).FullName);
                 await Eat(unfortunateGrain);
                 await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
                 unfortunateGrain.Dispose();

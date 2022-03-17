@@ -72,7 +72,7 @@ app.MapPost("/worlds/{worldName}/wanderers/{wandererName}", async (IGrainFactory
     var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == worldName.ToLower());
     if (world == null) return Results.NotFound();
 
-    var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, typeof(WandererGrain).FullName);
+    var newWandererGrain = grainFactory.GetGrain<IWandererGrain>(wandererName, typeof(WandererGrain).FullName);
     var nextTileGrainId = $"{worldName}/{new Random().Next(0, world.Rows - 1)}/{new Random().Next(0, world.Columns - 1)}";
     await newWandererGrain.SetLocation(grainFactory.GetGrain<ITileGrain>(nextTileGrainId));
 
@@ -162,7 +162,7 @@ app.MapPost("/worlds/random", async (IGrainFactory grainFactory) =>
         for (int i = 0; i < wanderers; i++)
         {
             string wandererName = new Faker().Person.FirstName;
-            var newWandererGrain = grainFactory.GetGrain<IWanderGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
+            var newWandererGrain = grainFactory.GetGrain<IWandererGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
             await newWandererGrain.SetInfo(new Wanderer
             {
                 Name = wandererName,

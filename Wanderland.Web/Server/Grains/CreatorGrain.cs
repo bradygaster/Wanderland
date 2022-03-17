@@ -132,5 +132,10 @@ namespace Wanderland.Web.Server.Grains
             await WanderlandHubContext.Clients.All.WorldListUpdated();
             WorldsCompleted += 1;
         }
+
+        public Task GenerateNewWorld()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
