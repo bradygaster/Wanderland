@@ -20,13 +20,13 @@ else
     [Parameter]
     public string? WorldName { get; set; }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
-            _hubClient.Start();
+            await _hubClient.Start();
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 }
