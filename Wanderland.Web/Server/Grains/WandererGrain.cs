@@ -43,57 +43,70 @@ namespace Wanderland.Web.Server.Grains
         {
             var world = await GrainFactory.GetGrain<IWorldGrain>(Wanderer.State.CurrentLocation.World).GetWorld();
 
-            // Probe the adjacent tiles to see if they are available.
-            var current = Wanderer.State.CurrentLocation;
-            var tasks = new List<Task<(bool, int, int)>>
+            // can the wanderer move north?
+            var isTileNorthOfMeAvailable = async () =>
             {
-                IsMoveAvailable(GrainFactory, world, current.Row - 1, current.Column),
-                IsMoveAvailable(GrainFactory, world, current.Row + 1, current.Column),
-                IsMoveAvailable(GrainFactory, world, current.Row, current.Column - 1),
-                IsMoveAvailable(GrainFactory, world, current.Row, current.Column + 1),
+                if (!(Wanderer.State.CurrentLocation.Row > 0)) return false;
+                var tileNorth = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row - 1}/{Wanderer.State.CurrentLocation.Column}").GetTile();
+                return tileNorth.Type == TileType.Space;
             };
 
-            // Wait for all probes to finish.
-            await Task.WhenAll(tasks);
+            // can the wanderer move west?
+            var isTileWestOfMeAvailable = async () =>
+            {
+                if (!(Wanderer.State.CurrentLocation.Column > 0)) return false;
+                var tileWest = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column - 1}").GetTile();
+                return tileWest.Type == TileType.Space;
+            };
 
-            // Save up the list of available options for our next direction.
+            // can the wanderer move north?
+            var isTileSouthOfMeAvailable = async () =>
+            {
+                if (!(Wanderer.State.CurrentLocation.Row < world.Rows - 1)) return false;
+                var tileSouth = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row + 1}/{Wanderer.State.CurrentLocation.Column}").GetTile();
+                return tileSouth.Type == TileType.Space;
+            };
+
+            // can the wanderer move east?
+            var isTileEastOfMeAvailable = async () =>
+            {
+                if (!(Wanderer.State.CurrentLocation.Column < world.Columns - 1)) return false;
+                var tileEast = await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column + 1}").GetTile();
+                return tileEast.Type == TileType.Space;
+            };
+
+            // save up the list of available options for our next direction
             var options = new List<string>();
-            foreach (var task in tasks)
+
+            if (await isTileNorthOfMeAvailable())
             {
-                var (isAvailable, row, col) = await task;
-                if (isAvailable)
-                {
-                    options.Add($"{world.Name}/{row}/{col}");
-                }
+                int rowUp = Wanderer.State.CurrentLocation.Row - 1;
+                options.Add($"{world.Name}/{rowUp}/{Wanderer.State.CurrentLocation.Column}");
+            }
+            if (await isTileWestOfMeAvailable())
+            {
+                int colLeft = Wanderer.State.CurrentLocation.Column - 1;
+                options.Add($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{colLeft}");
+            }
+            if (await isTileSouthOfMeAvailable())
+            {
+                int rowDown = Wanderer.State.CurrentLocation.Row + 1;
+                options.Add($"{world.Name}/{rowDown}/{Wanderer.State.CurrentLocation.Column}");
+            }
+            if (await isTileEastOfMeAvailable())
+            {
+                int colRight = Wanderer.State.CurrentLocation.Column + 1;
+                options.Add($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{colRight}");
             }
 
-            if (options.Count == 0)
-            {
-                // No moves are available, so stay put.
-                return;
-            }
-
-            // Leave the old tile.
+            // leave the old tile
             await GrainFactory.GetGrain<ITileGrain>($"{world.Name}/{Wanderer.State.CurrentLocation.Row}/{Wanderer.State.CurrentLocation.Column}").Leaves(this);
 
-            // Move to the next tile.
+            // move to the next tile
             var nextTileGrainId = options[new Random().Next(0, options.Count)];
             Logger.LogInformation($"{this.GetPrimaryKeyString()}'s next Tile ID is {nextTileGrainId}.");
             var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
             await SetLocation(nextTileGrain);
-
-            static async Task<(bool, int, int)> IsMoveAvailable(IGrainFactory grainFactory, World world, int row, int col)
-            {
-                // Don't allow out-of-bounds moves.
-                if (col < 0 || col >= world.Columns || row < 0 || row >= world.Rows)
-                {
-                    return (false, 0, 0);
-                }
-
-                // Check if the new tile would be available.
-                var tile = await grainFactory.GetGrain<ITileGrain>($"{world.Name}/{row}/{col}").GetTile();
-                return (tile.Type == TileType.Space, row, col);
-            }
         }
     }
 }

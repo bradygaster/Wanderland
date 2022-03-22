@@ -8,7 +8,6 @@ namespace Wanderland.Web.Server.Grains
 {
     public class CreatorGrain : Grain, ICreatorGrain
     {
-        private readonly Random _random = new ();
         public IPersistentState<List<string>> Worlds { get; }
         public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
 
@@ -23,40 +22,40 @@ namespace Wanderland.Web.Server.Grains
 
         async Task<IWorldGrain?> ICreatorGrain.CreateWorld(World world)
         {
-            if (string.IsNullOrEmpty(world.Name))
+            if(!string.IsNullOrEmpty(world.Name))
             {
-                return null;
-            }
-
-            if (!Worlds.State.Any(x => string.Equals(x, world.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                Worlds.State.Add(world.Name);
-            }
-
-            var worldGrain = GrainFactory.GetGrain<IWorldGrain>(world.Name.ToLower());
-            await worldGrain.SetWorld(world);
-
-            for (int row = 0; row < world.Rows; row++)
-            {
-                for (int col = 0; col < world.Columns; col++)
+                if (!Worlds.State.Any(x => x.ToLower() == world.Name.ToLower()))
                 {
-                    await worldGrain.MakeTile(new Tile
-                    {
-                        Row = row,
-                        Column = col,
-                        Type = CalculateTileTypeBasedOnWorldSize(world.Rows, world.Columns),
-                        World = world.Name
-                    });
+                    Worlds.State.Add(world.Name);
                 }
+
+                var worldGrain = GrainFactory.GetGrain<IWorldGrain>(world.Name.ToLower());
+                await worldGrain.SetWorld(world);
+
+                for (int row = 0; row < world.Rows; row++)
+                {
+                    for (int col = 0; col < world.Columns; col++)
+                    {
+                        await worldGrain.MakeTile(new Tile
+                        {
+                            Row = row,
+                            Column = col,
+                            Type = CalculateTileTypeBasedOnWorldSize(world.Rows, world.Columns),
+                            World = world.Name
+                        });
+                    }
+                }
+
+                await WanderlandHubContext.Clients.All.WorldListUpdated();
+                return worldGrain;
             }
 
-            await WanderlandHubContext.Clients.All.WorldListUpdated();
-            return worldGrain;
+            return null;
         }
 
         TileType CalculateTileTypeBasedOnWorldSize(int rows, int cols)
         {
-            var rndint = _random.Next(1, 12);
+            var rndint = new Random().Next(1, 12);
             return (rndint % 4 == 0) ? TileType.Barrier : TileType.Space;
         }
 
