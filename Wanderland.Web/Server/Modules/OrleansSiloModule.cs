@@ -18,6 +18,7 @@ namespace Wanderland.Web.Server
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
+                siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.LobbyStorageName);
                 siloBuilder.UseDashboard(options =>
                 {
                     options.HideTrace = true;

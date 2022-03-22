@@ -76,9 +76,12 @@ namespace Wanderland.Web.Server.Grains
             await tileGrain.Arrives(Wanderer.State);
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
             _timer.Dispose();
+
+            var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+            await lobbyGrain.JoinLobby(Wanderer.State);
         }
 
         public virtual Task SpeedUp(int ratio)

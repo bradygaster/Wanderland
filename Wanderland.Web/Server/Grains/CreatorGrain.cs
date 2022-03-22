@@ -143,7 +143,8 @@ namespace Wanderland.Web.Server.Grains
             var faker = new Faker();
             int rows = 8;
             int columns = 8;
-            var creator = GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty);
+            var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+
             var worldName = $"{new Faker().Address.City().ToLower().Replace(" ", "-")}";
             var worldGrain = await GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty).CreateWorld(new World { Name = worldName, Rows = rows, Columns = columns });
             if (worldGrain != null)
@@ -151,10 +152,10 @@ namespace Wanderland.Web.Server.Grains
                 var newWorld = await worldGrain.GetWorld();
                 int wanderers = 10;
 
-                // add some wanderers
-                for (int i = 0; i < wanderers; i++)
+                var wanderersFromLobby = await lobbyGrain.GetPlayersForNextWorld();
+                foreach (var wanderer in wanderersFromLobby)
                 {
-                    string wandererName = new Faker().Person.FirstName;
+                    string wandererName = wanderer.Name;
                     var newWandererGrain = GrainFactory.GetGrain<IWandererGrain>(wandererName, grainClassNamePrefix: typeof(WandererGrain).FullName);
                     await newWandererGrain.SetInfo(new Wanderer
                     {
@@ -179,6 +180,7 @@ namespace Wanderland.Web.Server.Grains
                             nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
                             tile = await GrainFactory.GetGrain<ITileGrain>(nextTileGrainId).GetTile();
                         }
+                        await lobbyGrain.LeaveLobby(wanderer);
                         await newWandererGrain.SetLocation(GrainFactory.GetGrain<ITileGrain>(nextTileGrainId));
                     }
                 }

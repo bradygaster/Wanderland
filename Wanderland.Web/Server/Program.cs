@@ -12,6 +12,18 @@ builder.SetupApplicationInsights();
 var app = builder.Build();
 app.SetupApp();
 
+// puts a player in the lobby
+app.MapGet("/lobby", async (IGrainFactory grainFactory, string playerName) =>
+{
+    var lobbyGrain = grainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+    await lobbyGrain.JoinLobby(new Wanderer
+    {
+        Name = playerName
+    });
+})
+.WithName("JoinLobby")
+.Produces(StatusCodes.Status200OK);
+
 // gets all the worlds in the list
 app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
     await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()
