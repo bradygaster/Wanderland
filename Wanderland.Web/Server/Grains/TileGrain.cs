@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Orleans;
+using Orleans.Configuration;
 using Orleans.Runtime;
 using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
+    [CollectionAgeLimit(Minutes = 2)]
     public class TileGrain : Grain, ITileGrain
     {
         public IPersistentState<Tile> Tile { get; }
@@ -22,25 +24,23 @@ namespace Wanderland.Web.Server.Grains
             WanderlandHubContext = wanderlandHubContext;
         }
 
-        async Task ITileGrain.Arrives(IWanderGrain wanderer)
+        async Task ITileGrain.Arrives(Thing thing)
         {
-            var wandererName = wanderer.GetPrimaryKeyString();
-            if(!Tile.State.WanderersHere.Contains(wandererName))
+            if(!Tile.State.ThingsHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.Add(wandererName);
-                Logger.LogInformation($"{wandererName} has wandered into tile {this.GetPrimaryKeyString()}");
-                await WanderlandHubContext.Clients.All.TileUpdated(Tile.State);
+                Tile.State.ThingsHere.Add(thing);
+                await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
+                await GrainFactory.GetGrain<IWorldGrain>(Tile.State.World).SetTile(Tile.State);
             }
         }
 
-        async Task ITileGrain.Leaves(IWanderGrain wanderer)
+        async Task ITileGrain.Leaves(Thing thing)
         {
-            var wandererName = wanderer.GetPrimaryKeyString();
-            if (Tile.State.WanderersHere.Contains(wandererName))
+            if (Tile.State.ThingsHere.Any(x => x.Name == thing.Name))
             {
-                Tile.State.WanderersHere.Remove(wandererName);
-                Logger.LogInformation($"{wandererName} has left tile {this.GetPrimaryKeyString()}");
-                await WanderlandHubContext.Clients.All.TileUpdated(Tile.State);
+                Tile.State.ThingsHere.RemoveAll(x => x.Name == thing.Name);
+                await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
+                await GrainFactory.GetGrain<IWorldGrain>(Tile.State.World).SetTile(Tile.State);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Wanderland.Web.Server.Grains
             return Task.FromResult(Tile.State);
         }
 
-        Task ITileGrain.SetTileInfo(Tile tile)
+        Task ITileGrain.SetTile(Tile tile)
         {
             Tile.State = tile;
             return Task.CompletedTask;

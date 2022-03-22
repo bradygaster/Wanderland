@@ -1,37 +1,42 @@
 ﻿@page "/grid/{worldName?}"
-@using Wanderland.Web.Shared
 @inject IWanderlandHttpApiClient _apiClient
+@inject WanderlandHubClient _hubClient
 
-<h2>@World.Name</h2>
-@for (int row = 0; row < World.Rows; row++)
-{
-    int currentRow = row;
-    <MudGrid Spacing="2" Justify="Justify.Center">
-        @for (int col = 0; col < World.Columns; col++)
+<MudGrid Spacing="2">
+    <MudItem xs="8">
+        @for (int row = 0; row < World.Rows; row++)
         {
-            int currentColumn = col;
-            <MudItem>
-                <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName"/>
-            </MudItem>
+            int currentRow = row;
+            <MudGrid Spacing="2" Justify="Justify.Center" Class="d-flex flex-nowrap">
+                @for (int col = 0; col < World.Columns; col++)
+                {
+                    int currentColumn = col;
+                    <MudItem>
+                        <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName" />
+                    </MudItem>
+                }
+            </MudGrid>
         }
-    </MudGrid>
-}
+    </MudItem>
+    <MudItem xs="4">
+        <WorldSummary WorldName="@WorldName"/>
+        <ServerStatistics />
+    </MudItem>
+</MudGrid>
 
 @code {
     [Parameter]
     public string? WorldName { get; set; }
     public World World { get; set; } = new World();
-    private bool shouldRender = false;
-
-    protected override bool ShouldRender() => shouldRender;
 
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
+            World = new World();
+            StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
-            Console.WriteLine($"Received {World.Name} with {World.Rows} rows and {World.Columns} columns.");
-            shouldRender = true;
+            await _hubClient.JoinWorld(WorldName);
         }
     }
 }

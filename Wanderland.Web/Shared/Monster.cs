@@ -1,6 +1,6 @@
 ﻿namespace Wanderland.Web.Shared
 {
-    public class Wanderer : Thing
+    public class Monster : Wanderer
     {
         public int Speed { get; set; } = 1500;
     }

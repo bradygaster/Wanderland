@@ -1,22 +1,27 @@
-﻿@using Wanderland.Web.Shared
-@inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
+﻿@inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
 @inject Wanderland.Web.Client.Services.WanderlandHubClient _hubClient
 
 <MudPaper Height="80px"
           Width="80px"
+          Class="d-flex align-center justify-center"
           Style='@($"background:{GetColorForTile()}")'>
     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
         @if (Model != null)
         {
-            @foreach (var wanderer in Model.WanderersHere)
+            @foreach (var wanderer in Model.ThingsHere)
             {
-                var text = wanderer.First();
-                <MudBadge Color="Color.Success" Icon="@Icons.Material.Filled.DirectionsWalk" Overlap="true" Bordered="true">
-                    <MudAvatar Color="Color.Info" Size="Size.Small">@text</MudAvatar>
-                </MudBadge>
+                if (string.IsNullOrEmpty(wanderer.AvatarImageUrl))
+                {
+                    <MudAvatar Color="Color.Success" Variant="Variant.Filled">
+                        <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.DirectionsWalk" Size="Size.Small" />
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudImage Width="80" Height="80" Src="@wanderer.AvatarImageUrl"/>
+                }
             }
         }
-
     </MudAvatarGroup>
 </MudPaper>
 
@@ -36,21 +41,22 @@
 
     protected override bool ShouldRender() => shouldRender;
 
+    private void OnTileUpdated(TileUpdatedEventArgs args)
+    {
+        if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
+        {
+            Model = args.Tile;
+            base.StateHasChanged();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
             Model = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
-            _hubClient.TileUpdate += (s, args) =>
-            {
-                if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
-                {
-                    Model = args.Tile;
-                    Console.WriteLine($"Tile {Model.Row}/{Model.Column} has {Model.WanderersHere.Count} wanderer(s).");
-                    base.StateHasChanged();
-                }
-
-            };
+            _hubClient.TileUpdate -= (s, args) => OnTileUpdated(args);
+            _hubClient.TileUpdate += (s, args) => OnTileUpdated(args);
             TileType = Model.Type;
             shouldRender = true;
         }
@@ -59,8 +65,17 @@
     protected string GetColorForTile()
     {
         if (Model?.Type == TileType.Barrier)
-            return Colors.BlueGrey.Darken4;
+            return Colors.Shades.Black;
 
-        return Colors.BlueGrey.Default;
+        if (Model?.Column == 0) return Colors.DeepPurple.Darken3;
+        if (Model?.Column == 1) return Colors.DeepPurple.Darken2;
+        if (Model?.Column == 2) return Colors.DeepPurple.Darken1;
+        if (Model?.Column >= 3 || Model?.Column <= 5) return Colors.DeepPurple.Default;
+        if (Model?.Column == 6) return Colors.DeepPurple.Lighten1;
+        if (Model?.Column == 7) return Colors.DeepPurple.Lighten2;
+        if (Model?.Column == 8) return Colors.DeepPurple.Lighten3;
+        if (Model?.Column == 9) return Colors.DeepPurple.Lighten4;
+        
+        return Colors.BlueGrey.Darken3;
     }
 }

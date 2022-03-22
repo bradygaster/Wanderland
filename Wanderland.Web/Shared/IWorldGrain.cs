@@ -5,7 +5,8 @@ namespace Wanderland.Web.Shared
     public interface IWorldGrain : IGrainWithStringKey
     {
         Task<World> GetWorld();
-        Task<ITileGrain> MakeTile(Tile tile);
+        Task SetTile(Tile tile);
         Task SetWorld(World world);
+        Task<bool> IsWorldEmpty();
     }
 }

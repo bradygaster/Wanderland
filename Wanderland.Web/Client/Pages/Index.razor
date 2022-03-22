@@ -2,31 +2,66 @@
 @using Wanderland.Web.Client.Services
 @using Wanderland.Web.Shared
 @inject WanderlandHubClient _hubClient
+@inject IWanderlandHttpApiClient _apiClient
 
 <PageTitle>Index</PageTitle>
 
-@if(string.IsNullOrEmpty(WorldName))
+
+@if (string.IsNullOrEmpty(WorldName))
 {
-    <h2>No world selected.</h2>
-    <p>Please choose a world to observe from the navigation bar.</p>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">wanderland.cloud</MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">No world selected.</MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Please choose a world to observe from the navigation bar.</MudPaper>
+        </MudItem>
+    </MudGrid>
 }
 else
 {
-    <WorldGrid WorldName="@WorldName"/>
+    <WorldGrid WorldName="@WorldName" />
 }
+
+
 
 @code
 {
     [Parameter]
     public string? WorldName { get; set; }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
-            _hubClient.Start();
+            _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
+            _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
+            await _hubClient.Start();
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(WorldName))
+        {
+            await RefreshWorlds();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task RefreshWorlds()
+    {
+        var worlds = await _apiClient.GetWorlds();
+        if (worlds.Any())
+        {
+            WorldName = worlds.First().Name;
+            StateHasChanged();
+        }
     }
 }

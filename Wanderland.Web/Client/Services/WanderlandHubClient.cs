@@ -11,11 +11,13 @@ namespace Wanderland.Web.Client.Services
             HubUri = new Uri($"{BaseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
         }
 
-        private HubConnection Connection { get; set; }
+        private HubConnection? Connection { get; set; }
         private Uri BaseUri { get; set; }
         private Uri HubUri { get; set; }
         public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
         public event EventHandler<TileUpdatedEventArgs> TileUpdate;
+        public event EventHandler<WorldAgeUpdatedEventArgs> WorldAgeUpdate;
+        public event EventHandler<SystemStatusUpdateReceivedEventArgs> SystemStatusUpdate;
 
         public async Task Start()
         {
@@ -23,21 +25,31 @@ namespace Wanderland.Web.Client.Services
                 .WithUrl(HubUri)
                 .Build();
 
-            Connection.Closed += async (error) =>
+            var _ = async () =>
             {
                 await Task.Delay(new Random().Next(0, 5) * 1000);
                 await Connection.StartAsync();
             };
 
+            Connection.Closed += async (error) => await _();
+
             Connection.On("WorldListUpdated", WorldListUpdated);
             Connection.On<Tile>("TileUpdated", TileUpdated);
+            Connection.On<WorldAgeUpdatedEventArgs>("WorldAgeUpdated", WorldAgeUpdated);
+            Connection.On<SystemStatusUpdateReceivedEventArgs>("SystemStatusReceived", SystemStatusReceived);
 
-            try
+            await Connection.StartAsync();
+        }
+
+        public string World { get; set; }
+
+        public async Task JoinWorld(string worldName)
+        { 
+            World = worldName;
+
+            if(Connection != null)
             {
-                await Connection.StartAsync();
-            }
-            catch (Exception ex)
-            {
+                await Connection.SendAsync("JoinWorld", worldName);
             }
         }
 
@@ -55,6 +67,24 @@ namespace Wanderland.Web.Client.Services
             if (WorldListUpdate != null)
             {
                 WorldListUpdate(this, new WorldListUpdatedEventArgs());
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task WorldAgeUpdated(WorldAgeUpdatedEventArgs args)
+        {
+            if (WorldAgeUpdate != null)
+            {
+                WorldAgeUpdate(this, args);
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task SystemStatusReceived(SystemStatusUpdateReceivedEventArgs args)
+        {
+            if(SystemStatusUpdate != null)
+            {
+                SystemStatusUpdate(this, args);
             }
             return Task.CompletedTask;
         }

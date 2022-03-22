@@ -12,6 +12,13 @@
             public const string TileStorageName = "tileStorage";
             public const string WandererStateName = "wanderer";
             public const string WandererStorageName = "wandererStorage";
+            public const string GroupStateName = "group";
+            public const string GroupStorageName = "groupStorage";
+        }
+
+        public static class EnvironmentVariableNames
+        {
+            public const string ApplicationInsightsConnectionString = "APPLICATIONINSIGHTS_CONNECTION_STRING";
         }
 
         public static class Routes

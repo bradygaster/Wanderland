@@ -6,7 +6,7 @@
         public int Row { get; set; }
         public int Column { get; set; }
         public TileType Type { get; set; } = TileType.Space;
-        public List<string> WanderersHere { get; set; } = new List<string>();
+        public List<Thing> ThingsHere { get; set; } = new List<Thing>();
     }
 
     public enum TileType

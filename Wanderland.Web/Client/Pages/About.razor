@@ -1,0 +1,26 @@
+﻿@page "/about"
+@using Wanderland.Web.Client.Services
+@using Wanderland.Web.Shared
+@inject WanderlandHubClient _hubClient
+
+<PageTitle>About Wanderland</PageTitle>
+
+<h2>About Wanderland</h2>
+
+<p>This is a game built using ASP.NET Core 6 and Orleans. I'll add more content here later.</p>
+
+@code
+{
+    [Parameter]
+    public string? WorldName { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            _hubClient.Start();
+        }
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+}

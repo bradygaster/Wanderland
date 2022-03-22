@@ -4,6 +4,9 @@ namespace Wanderland.Web.Shared
 {
     public interface IWanderlandHttpApiClient
     {
+        [Delete("/worlds/{name}")]
+        Task DeleteWorld(string name);
+
         [Get("/worlds")]
         Task<List<World>> GetWorlds();
 
@@ -24,6 +27,11 @@ namespace Wanderland.Web.Shared
         public WanderlandHttpApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+
+        public async Task DeleteWorld(string name)
+        {
+            await RestService.For<IWanderlandHttpApiClient>(_httpClient).DeleteWorld(name);
         }
 
         async Task<Tile> IWanderlandHttpApiClient.GetTileCurrentState(string name, int row, int column)
