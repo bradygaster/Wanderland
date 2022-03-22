@@ -19,7 +19,7 @@ app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
 .WithName("GetWorlds")
 .Produces<List<World>>(StatusCodes.Status200OK);
 
-// gets all the worlds in the list
+// gets one world
 app.MapDelete("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 {
     await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(
