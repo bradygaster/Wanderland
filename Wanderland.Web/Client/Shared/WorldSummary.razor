@@ -5,8 +5,8 @@
     <MudCard>
         <MudCardHeader>
             <CardHeaderContent>
-                <MudText Typo="Typo.h4">@WorldName</MudText>
-                <MudText Typo="Typo.subtitle1">Current World</MudText>
+                <MudText Typo="Typo.h3">@WorldName</MudText>
+                <MudText Typo="Typo.h5">Current World</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Default"
@@ -15,8 +15,8 @@
         </MudCardHeader>
         <MudCardContent>
             <MudListItem title="World age" Avatar="@Icons.Material.Filled.Timer" IconColor="Color.Primary">
-                <MudText Typo="Typo.subtitle1" Class="d-block">World age</MudText>
-                <MudText Typo="Typo.subtitle2" Class="d-block">@($"{_age.ToString("hh\\:mm\\:ss")}")</MudText>
+                <MudText Typo="Typo.h3" Class="d-block">World age</MudText>
+                <MudText Typo="Typo.h5" Class="d-block">@($"{_age.ToString("hh\\:mm\\:ss")}")</MudText>
             </MudListItem>
         </MudCardContent>
     </MudCard>
