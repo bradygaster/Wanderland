@@ -7,7 +7,7 @@
             <MudCardHeader>
                 <CardHeaderContent>
                     <MudText Typo="Typo.h3">Server Statistics</MudText>
-                    <MudText Typo="Typo.body1">Details about the wanderland server. To see more real-time diagnostic information, click the dashboard button.</MudText>
+                    <MudText Typo="Typo.h5">Details about the wanderland server. To see more real-time diagnostic information, click the dashboard button.</MudText>
                 </CardHeaderContent>
                 <CardHeaderActions>
                     <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Default" Target="_blank" Link="/dashboard" Title="View the Orleans Dashboard" />
@@ -21,10 +21,6 @@
                 <MudListItem title="Server uptime" Avatar="@Icons.Material.Filled.Timer" IconColor="Color.Primary">
                     <MudText Typo="Typo.h5" Class="d-block">Server uptime</MudText>
                     <MudText Typo="Typo.h5" Class="d-block">@_latestUpdate.TimeUp.ToString("hh\\:mm\\:ss")</MudText>
-                </MudListItem>
-                <MudListItem title="Current Grains" Avatar="@Icons.Material.Filled.Grain" IconColor="Color.Primary">
-                    <MudText Typo="Typo.h5" Class="d-block">Current Grains</MudText>
-                    <MudText Typo="Typo.h5" Class="d-block">@_latestUpdate.GrainsActive.ToString("N0")</MudText>
                 </MudListItem>
                 <MudListItem title="Worlds completed" Avatar="@Icons.Material.Filled.HolidayVillage" IconColor="Color.Primary">
                     <MudText Typo="Typo.h5" Class="d-block">Worlds completed</MudText>

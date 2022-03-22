@@ -1,0 +1,57 @@
+﻿@inject WanderlandHubClient _hubClient
+
+<MudPaper>
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h3">Grain Count : @_latestUpdate?.GrainsActive.ToString("N0")</MudText>
+            <MudText Typo="Typo.h5">How many Orleans Grains are running at the moment.</MudText>
+            <MudChart ChartType="ChartType.Line"
+                      Class="my-0 pa-0"
+                      ChartSeries="@Series"
+                      Width="100%"
+                      Height="100%"
+                      ChartOptions="options"></MudChart>
+        </MudCardContent>
+    </MudCard>
+</MudPaper>
+
+@code {
+    private ChartOptions options = new ChartOptions() { DisableLegend = true };
+    SystemStatusUpdate _latestUpdate;
+    private List<double> _data = new List<double>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        for (int i = 0; i < 100; i++) _data.Add(0);
+
+        Series = new List<ChartSeries>()
+        {
+            new ChartSeries() { Name = "Grain Count", Data = _data.ToArray() }
+        };
+        _hubClient.SystemStatusUpdate -= OnSystemUpdateReceived;
+        _hubClient.SystemStatusUpdate += OnSystemUpdateReceived;
+        await base.OnInitializedAsync();
+    }
+
+    private void OnSystemUpdateReceived(object? sender, SystemStatusUpdateReceivedEventArgs args)
+    {
+        _latestUpdate = args.SystemStatusUpdate;
+        _data.RemoveAt(0);
+        _data.Add(args.SystemStatusUpdate.GrainsActive);
+        Series = new List<ChartSeries>()
+        {
+            new ChartSeries() { Name = "Grain Count", Data = _data.ToArray() }
+        };
+
+        base.StateHasChanged();
+    }
+
+    public List<ChartSeries> Series = new List<ChartSeries>();
+
+    Random random = new Random();
+    protected override void OnInitialized()
+    {
+        options.InterpolationOption = InterpolationOption.NaturalSpline;
+        options.YAxisFormat = "c2";
+    }
+}
