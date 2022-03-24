@@ -1,11 +1,8 @@
-﻿using Wanderland.Web.Server.Hubs;
+﻿using Orleans;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
-using Orleans;
-using Orleans.Hosting;
-using OrleansDashboard;
-
-namespace Wanderland.Web.Server
+namespace Microsoft.Extensions.Configuration
 {
     internal static class SetupModule
     {
@@ -39,10 +36,15 @@ namespace Wanderland.Web.Server
             app.UseStaticFiles();
             app.UseRouting();
             app.MapRazorPages();
-            app.Map("/dashboard", d =>
+
+            if(app.Configuration.IsDashboardEnabled())
             {
-                d.UseOrleansDashboard();
-            });
+                app.Map("/dashboard", d =>
+                {
+                    d.UseOrleansDashboard();
+                });
+            }
+
             app.MapHub<WanderlandHub>($"/{Constants.Routes.WanderlandSignalRHubRoute}");
             app.MapFallbackToFile("index.html");
 
