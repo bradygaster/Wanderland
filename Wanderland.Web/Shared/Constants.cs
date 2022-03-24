@@ -14,6 +14,8 @@
             public const string WandererStorageName = "wandererStorage";
             public const string GroupStateName = "group";
             public const string GroupStorageName = "groupStorage";
+            public const string LobbyStateName = "lobby";
+            public const string LobbyStorageName = "lobbyStorage";
         }
 
         public static class EnvironmentVariableNames

@@ -18,11 +18,24 @@ namespace Wanderland.Web.Server
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
-                siloBuilder.UseDashboard(options =>
+                siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.LobbyStorageName);
+
+                if(builder.Configuration.IsDashboardEnabled())
                 {
-                    options.HideTrace = true;
-                    options.HostSelf = false;
-                });
+                    siloBuilder.UseDashboard(options =>
+                    {
+                        options.HideTrace = true;
+                        options.HostSelf = false;
+                    });
+                }
+
+                if(!string.IsNullOrEmpty(builder.Configuration.GetValue<string>("APPLICATIONINSIGHTS_INSTRUMENTATIONKEY")))
+                {
+                    siloBuilder.AddApplicationInsightsTelemetryConsumer(
+                        builder.Configuration.GetValue<string>("APPLICATIONINSIGHTS_INSTRUMENTATIONKEY")
+                    );
+                }
+
             });
 
             return builder;

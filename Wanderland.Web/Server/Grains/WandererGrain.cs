@@ -76,9 +76,15 @@ namespace Wanderland.Web.Server.Grains
             await tileGrain.Arrives(Wanderer.State);
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
             _timer.Dispose();
+
+            if(Wanderer.State.GetType().Equals(typeof(Wanderer))) // don't put monsters back in
+            {
+                var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+                await lobbyGrain.JoinLobby(Wanderer.State);
+            }
         }
 
         public virtual Task SpeedUp(int ratio)
