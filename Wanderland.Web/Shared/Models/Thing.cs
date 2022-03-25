@@ -1,11 +1,17 @@
-﻿namespace Wanderland.Web.Shared
+﻿using Orleans;
+
+namespace Wanderland.Web.Shared
 {
+    [GenerateSerializer]
     public class Thing
     {
+        [Id(0)]
         public string Name { get; set; } = string.Empty;
 
+        [Id(1)]
         public Tile CurrentLocation { get; set; }
 
+        [Id(2)]
         public string? AvatarImageUrl { get; set; } = null;
     }
 }

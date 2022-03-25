@@ -44,16 +44,16 @@ namespace Wanderland.Web.Server.Grains
             }, null, GetMoveDuration(), GetMoveDuration());
         }
 
-        public override async Task OnActivateAsync()
+        public override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             ResetWanderTimer();
-            await base.OnActivateAsync();
+            await base.OnActivateAsync(cancellationToken);
         }
 
-        public override Task OnDeactivateAsync()
+        public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
         {
             _timer?.Dispose();
-            return base.OnDeactivateAsync();
+            return base.OnDeactivateAsync(reason, cancellationToken);
         }
 
         public Task<Wanderer> GetWanderer()
