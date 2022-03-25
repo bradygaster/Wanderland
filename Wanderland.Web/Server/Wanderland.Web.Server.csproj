@@ -12,16 +12,16 @@
 		<PackageReference Include="Bogus" Version="34.0.1" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.3" />
-		<PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.6.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.6.0" />
-		<PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="3.6.0" />
-		<PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="3.6.0" />
-		<PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.6.0" />
-		<PackageReference Include="Microsoft.Orleans.Server" Version="3.6.0" />
-		<PackageReference Include="OrleansDashboard" Version="3.6.1" />
+		<PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="4.0.0-preview1" />
+		<PackageReference Include="Microsoft.Orleans.Sdk" Version="4.0.0-preview1" />
+		<PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="4.0.0-preview1" />
+		<PackageReference Include="Microsoft.Orleans.Persistence.Memory" Version="4.0.0-preview1" />
+		<PackageReference Include="Microsoft.Orleans.Server" Version="4.0.0-preview1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.2.0-rc3" />
+		<PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.2.0-rc3" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 	</ItemGroup>
 

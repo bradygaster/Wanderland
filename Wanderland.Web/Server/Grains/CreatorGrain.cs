@@ -28,7 +28,7 @@ namespace Wanderland.Web.Server.Grains
         }
 
         IDisposable _timer;
-        public override Task OnActivateAsync()
+        public override Task OnActivateAsync(CancellationToken cancellationToken)
         {
             _timer?.Dispose();
             _timer = RegisterTimer(async _ =>
@@ -74,7 +74,7 @@ namespace Wanderland.Web.Server.Grains
 
             }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
 
-            return base.OnActivateAsync();
+            return base.OnActivateAsync(cancellationToken);
         }
 
         async Task<IWorldGrain?> ICreatorGrain.CreateWorld(World world)
@@ -150,7 +150,6 @@ namespace Wanderland.Web.Server.Grains
             if (worldGrain != null)
             {
                 var newWorld = await worldGrain.GetWorld();
-                int wanderers = 10;
 
                 var wanderersFromLobby = await lobbyGrain.GetPlayersForNextWorld();
                 foreach (var wanderer in wanderersFromLobby)

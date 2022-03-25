@@ -50,7 +50,6 @@ namespace Wanderland.Web.Server.Grains
         public async Task Eat(IWandererGrain grain)
         {
             Wanderer.State.AvatarImageUrl = MONSTER;
-            var deadWanderer = await grain.GetWanderer();
             grain.Dispose();
             await SpeedUp(4);
         }
@@ -64,9 +63,10 @@ namespace Wanderland.Web.Server.Grains
             await EatEverythingHere(tileGrain);
         }
 
-        async Task<Monster> IMonsterGrain.GetWanderer()
+        Task<Monster> IMonsterGrain.GetWanderer()
         {
-            return await base.GetWanderer() as Monster;
+            Wanderer.State.Name = this.GetPrimaryKeyString();
+            return Task.FromResult((Monster)Wanderer.State);
         }
 
         public async Task SetInfo(Monster wanderer)

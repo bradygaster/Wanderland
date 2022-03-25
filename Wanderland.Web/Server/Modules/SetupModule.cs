@@ -36,15 +36,6 @@ namespace Microsoft.Extensions.Configuration
             app.UseStaticFiles();
             app.UseRouting();
             app.MapRazorPages();
-
-            if(app.Configuration.IsDashboardEnabled())
-            {
-                app.Map("/dashboard", d =>
-                {
-                    d.UseOrleansDashboard();
-                });
-            }
-
             app.MapHub<WanderlandHub>($"/{Constants.Routes.WanderlandSignalRHubRoute}");
             app.MapFallbackToFile("index.html");
 

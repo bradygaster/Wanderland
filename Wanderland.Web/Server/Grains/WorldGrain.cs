@@ -56,18 +56,18 @@ namespace Wanderland.Web.Server.Grains
             }, null, TimeSpan.FromMilliseconds(1000), TimeSpan.FromMilliseconds(1000));
         }
 
-        public override async Task OnActivateAsync()
+        public override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             ResetTimer();
-            await base.OnActivateAsync();
+            await base.OnActivateAsync(cancellationToken);
         }
 
-        public async Task<bool> IsWorldEmpty()
+        public Task<bool> IsWorldEmpty()
         {
             var thingsLeft = World.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
             Logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {World.State.Name}");
 
-            return !thingsLeft.Any();
+            return Task.FromResult(thingsLeft is not {Count: > 0 });
         }
 
         Task<World> IWorldGrain.GetWorld()

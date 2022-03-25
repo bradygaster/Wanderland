@@ -52,9 +52,13 @@ namespace Wanderland.Web.Server.Grains
         }
     }
 
+    [GenerateSerializer]
     public class SignalRConnectionToWorldMap
     {
+        [Id(0)]
         public string ConnectionId { get; set; }
+
+        [Id(1)]
         public string World { get; set; }
     }
 }

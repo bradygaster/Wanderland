@@ -1,6 +1,5 @@
 ﻿using Orleans;
 using Orleans.Hosting;
-using OrleansDashboard;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server
@@ -9,7 +8,7 @@ namespace Wanderland.Web.Server
     {
         internal static WebApplicationBuilder SetupOrleansSilo(this WebApplicationBuilder builder)
         {
-            builder.Host.UseOrleans(siloBuilder =>
+            builder.Host.UseOrleans((siloBuilder) =>
             {
                 siloBuilder.UseLocalhostClustering();
                 siloBuilder.UseInMemoryReminderService();
@@ -19,15 +18,7 @@ namespace Wanderland.Web.Server
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WandererStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.GroupStorageName);
                 siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.LobbyStorageName);
-
-                if(builder.Configuration.IsDashboardEnabled())
-                {
-                    siloBuilder.UseDashboard(options =>
-                    {
-                        options.HideTrace = true;
-                        options.HostSelf = false;
-                    });
-                }
+                siloBuilder.AddActivityPropagation();
 
                 if(!string.IsNullOrEmpty(builder.Configuration.GetValue<string>("APPLICATIONINSIGHTS_INSTRUMENTATIONKEY")))
                 {
@@ -35,7 +26,6 @@ namespace Wanderland.Web.Server
                         builder.Configuration.GetValue<string>("APPLICATIONINSIGHTS_INSTRUMENTATIONKEY")
                     );
                 }
-
             });
 
             return builder;
