@@ -6,8 +6,8 @@ namespace Wanderland.Web.Shared
     {
         Task JoinLobby(Wanderer wanderer);
         Task LeaveLobby(Wanderer wanderer);
-        Task WorldReady(World world);
         Task<List<Wanderer>> GetPlayersInLobbby();
         Task<List<Wanderer>> GetPlayersForNextWorld();
+        Task PlayersForNextWorldChosen(List<Wanderer> wanderers);
     }
 }

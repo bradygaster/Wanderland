@@ -1,6 +1,6 @@
 ﻿@inject WanderlandHubClient _hubClient
 
-<MudPaper>
+<MudPaper Elevation="8" Class="my-5">
     <MudCard>
         <MudCardContent>
             <MudText Typo="Typo.h3">Grain Count : @_latestUpdate?.GrainsActive.ToString("N0")</MudText>
@@ -21,7 +21,7 @@
         LineStrokeWidth = 4,
         DisableLegend = true,
         InterpolationOption = InterpolationOption.NaturalSpline,
-        MaxNumYAxisTicks = 100
+        MaxNumYAxisTicks = 8
     };
     SystemStatusUpdate? _latestUpdate;
     private List<double> _data = new List<double>();
@@ -55,9 +55,4 @@
     public List<ChartSeries> Series = new List<ChartSeries>();
 
     Random random = new Random();
-    protected override void OnInitialized()
-    {
-        options.InterpolationOption = InterpolationOption.NaturalSpline;
-        options.YAxisFormat = "c2";
-    }
 }

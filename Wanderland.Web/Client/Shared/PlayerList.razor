@@ -1,17 +1,40 @@
-﻿<MudPaper Width="300px">
-    <MudList>
-        <MudListItem Avatar="@Icons.Material.Filled.Image">
-            Photos
-        </MudListItem>
-        <MudListItem Avatar="@Icons.Material.Filled.Work">
-            Work
-        </MudListItem>
-        <MudListItem Avatar="@Icons.Material.Filled.Umbrella">
-            Vacation
-        </MudListItem>
-    </MudList>
+﻿@inject WanderlandHubClient _hubClient
+
+<MudPaper Elevation="8" Class="my-5">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h3">Players</MudText>
+            <MudText Typo="Typo.body1">Players in this round of the game.</MudText>
+            <MudList>
+                @if (_players != null)
+                {
+                    @foreach (var player in _players)
+                    {
+                        <MudListItem>
+                            <MudAvatar Class="mr-2" Color="Color.Primary" Variant="Variant.Filled">@player.Name.First()</MudAvatar>
+                            @player.Name
+                        </MudListItem>
+                    }
+                }
+            </MudList>
+        </MudCardContent>
+    </MudCard>
 </MudPaper>
 
-@code {
 
+@code {
+    private List<Wanderer>? _players = new List<Wanderer>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubClient.PlayerListUpdate -= OnPlayerListUpdated;
+        _hubClient.PlayerListUpdate += OnPlayerListUpdated;
+        await base.OnInitializedAsync();
+    }
+
+    private void OnPlayerListUpdated(object? sender, PlayerListUpdatedEventArgs args)
+    {
+        _players = args.Players;
+        base.StateHasChanged();
+    }
 }

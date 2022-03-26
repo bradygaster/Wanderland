@@ -8,16 +8,15 @@
 
 <MudGrid Spacing="2">
     <MudItem xs="8">
-        <MudPaper Elevation="3" Class="px-4 py-6">
+        <MudPaper Elevation="8" Class="px-4 py-6">
             <WorldGrid WorldName="@WorldName" />
         </MudPaper>
+        <GrainCount />
     </MudItem>
     <MudItem xs="4">
         <WorldSummary WorldName="@WorldName"/>
+        <PlayerList />
         <ServerStatistics />
-    </MudItem>
-    <MudItem xs="8">
-        <GrainCount />
     </MudItem>
 </MudGrid>
 
