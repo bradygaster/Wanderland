@@ -47,7 +47,7 @@ namespace Wanderland.Web.Server.Grains
 
         public Task WorldReady(World world)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

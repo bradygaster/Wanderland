@@ -7,5 +7,8 @@ namespace Wanderland.Web.Shared
     {
         [Id(0)]
         public int Speed { get; set; } = 1500;
+
+        [Id(1)]
+        public Coordinate Location { get; set; }
     }
 }

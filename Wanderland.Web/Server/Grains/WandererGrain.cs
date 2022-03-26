@@ -71,8 +71,8 @@ namespace Wanderland.Web.Server.Grains
 
         public virtual async Task SetLocation(ITileGrain tileGrain)
         {
+            var tile = await tileGrain.GetTile();
             Wanderer.State.Name = this.GetPrimaryKeyString();
-            Wanderer.State.CurrentLocation = await tileGrain.GetTile();
             await tileGrain.Arrives(Wanderer.State);
         }
 
@@ -137,74 +137,61 @@ namespace Wanderland.Web.Server.Grains
 
         public virtual async Task<bool> CanGoWest()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            if (!(currentTile.Column > 0)) return false;
-            var tileWest = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{currentTile.Row}/{currentTile.Column - 1}").GetTile();
+            if (!(Wanderer.State.Location.Column > 0)) return false;
+            var tileWest = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{Wanderer.State.Location.Row}/{Wanderer.State.Location.Column - 1}").GetTile();
             return tileWest.Type == TileType.Space;
         }
 
         public virtual async Task GoWest()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            int colLeft = currentTile.Column - 1;
-            var tileGrainName = $"{World.Name}/{currentTile.Row}/{colLeft}";
+            var tileGrainName = $"{World.Name}/{Wanderer.State.Location.Row}/{Wanderer.State.Location.Column - 1}";
             await Go(tileGrainName);
         }
 
         public virtual async Task<bool> CanGoNorth()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            if (!(currentTile.Row > 0)) return false;
-            var tileNorth = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{currentTile.Row - 1}/{currentTile.Column}").GetTile();
+            if (!(Wanderer.State.Location.Row > 0)) return false;
+            var tileNorth = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{Wanderer.State.Location.Row - 1}/{Wanderer.State.Location.Column}").GetTile();
             return tileNorth.Type == TileType.Space;
         }
 
         public virtual async Task GoNorth()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            int rowUp = currentTile.Row - 1;
-            var tileGrainName = $"{World.Name}/{rowUp}/{currentTile.Column}";
+            int rowUp = Wanderer.State.Location.Row - 1;
+            var tileGrainName = $"{World.Name}/{rowUp}/{Wanderer.State.Location.Column}";
             await Go(tileGrainName);
         }
 
         public virtual async Task<bool> CanGoSouth()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            if (!(currentTile.Row < World.Rows - 1)) return false;
-            var tileSouth = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{currentTile.Row + 1}/{currentTile.Column}").GetTile();
+            if (!(Wanderer.State.Location.Row < World.Rows - 1)) return false;
+            var tileSouth = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{Wanderer.State.Location.Row + 1}/{Wanderer.State.Location.Column}").GetTile();
             return tileSouth.Type == TileType.Space;
         }
 
         public virtual async Task GoSouth()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            int rowDown = currentTile.Row + 1;
-            var tileGrainName = $"{World.Name}/{rowDown}/{currentTile.Column}";
+            var tileGrainName = $"{World.Name}/{Wanderer.State.Location.Row + 1}/{Wanderer.State.Location.Column}";
             await Go(tileGrainName);
         }
 
         public virtual async Task<bool> CanGoEast()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            if (!(currentTile.Column < World.Columns - 1)) return false;
-            var tileEast = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{currentTile.Row}/{currentTile.Column + 1}").GetTile();
+            if (!(Wanderer.State.Location.Column < World.Columns - 1)) return false;
+            var tileEast = await GrainFactory.GetGrain<ITileGrain>($"{World.Name}/{Wanderer.State.Location.Row}/{Wanderer.State.Location.Column + 1}").GetTile();
             return tileEast.Type == TileType.Space;
         }
 
         public virtual async Task GoEast()
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-            int colRight = currentTile.Column + 1;
-            var tileGrainName = $"{World.Name}/{currentTile.Row}/{colRight}";
+            var tileGrainName = $"{World.Name}/{Wanderer.State.Location.Row}/{Wanderer.State.Location.Column + 1}";
             await Go(tileGrainName);
         }
 
         private async Task Go(string tileGrainName)
         {
-            var currentTile = Wanderer.State.CurrentLocation;
-
             // leave the old tile
-            var tileGrainId = $"{World.Name}/{currentTile.Row}/{currentTile.Column}";
+            var tileGrainId = $"{World.Name}/{Wanderer.State.Location.Row}/{Wanderer.State.Location.Column}";
             await GrainFactory.GetGrain<ITileGrain>(tileGrainId).Leaves(Wanderer.State);
 
             // move to the next tile

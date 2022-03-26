@@ -17,7 +17,7 @@
 
 @code {
     private ChartOptions options = new ChartOptions() { DisableLegend = true };
-    SystemStatusUpdate _latestUpdate;
+    SystemStatusUpdate? _latestUpdate;
     private List<double> _data = new List<double>();
 
     protected override async Task OnInitializedAsync()

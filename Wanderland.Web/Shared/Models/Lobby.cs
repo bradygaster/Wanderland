@@ -1,5 +1,8 @@
-﻿namespace Wanderland.Web.Shared
+﻿using Orleans;
+
+namespace Wanderland.Web.Shared
 {
+    [GenerateSerializer]
     public class Lobby
     {
         public List<Wanderer> Wanderers { get; set; } = new List<Wanderer>();

@@ -9,9 +9,6 @@ namespace Wanderland.Web.Shared
         public string Name { get; set; } = string.Empty;
 
         [Id(1)]
-        public Tile CurrentLocation { get; set; }
-
-        [Id(2)]
         public string? AvatarImageUrl { get; set; } = null;
     }
 }
