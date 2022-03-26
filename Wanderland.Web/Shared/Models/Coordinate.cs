@@ -10,5 +10,8 @@ namespace Wanderland.Web.Shared
 
         [Id(1)]
         public int Column { get; set; } = 0;
+
+        [Id(2)]
+        public string World { get; set; }
     }
 }

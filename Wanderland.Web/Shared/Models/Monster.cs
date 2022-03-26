@@ -7,7 +7,7 @@ namespace Wanderland.Web.Shared
     {
         public Monster()
         {
-            Speed = 1500;
+            Speed = 1000;
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Wanderland.Web.Shared
     public class Wanderer : Thing
     {
         [Id(0)]
-        public int Speed { get; set; } = 1500;
+        public int Speed { get; set; } = 200;
 
         [Id(1)]
-        public Coordinate Location { get; set; }
+        public Coordinate Location { get; set; } = new Coordinate();
     }
 }

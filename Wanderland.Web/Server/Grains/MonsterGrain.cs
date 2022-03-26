@@ -65,6 +65,7 @@ namespace Wanderland.Web.Server.Grains
 
         Task<Monster> IMonsterGrain.GetWanderer()
         {
+            Wanderer.State.AvatarImageUrl = MONSTER;
             Wanderer.State.Name = this.GetPrimaryKeyString();
             return Task.FromResult((Monster)Wanderer.State);
         }

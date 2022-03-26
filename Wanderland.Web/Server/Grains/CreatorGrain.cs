@@ -159,7 +159,7 @@ namespace Wanderland.Web.Server.Grains
                     await newWandererGrain.SetInfo(new Wanderer
                     {
                         Name = wandererName,
-                        Speed = new Random().Next(300, 800)
+                        Speed = new Random().Next(200, 500)
                     });
                     var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
                     var tileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);

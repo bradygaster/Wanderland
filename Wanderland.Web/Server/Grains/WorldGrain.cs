@@ -67,7 +67,7 @@ namespace Wanderland.Web.Server.Grains
             var thingsLeft = World.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
             Logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {World.State.Name}");
 
-            return Task.FromResult(thingsLeft is not {Count: > 0 });
+            return Task.FromResult(thingsLeft is not {Count: > 1 });
         }
 
         Task<World> IWorldGrain.GetWorld()
