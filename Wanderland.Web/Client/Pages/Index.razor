@@ -6,27 +6,20 @@
 
 <PageTitle>wanderland.cloud</PageTitle>
 
-
-@if (string.IsNullOrEmpty(WorldName))
-{
-    <MudGrid>
-        <MudItem xs="12">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">wanderland.cloud</MudPaper>
-        </MudItem>
-        <MudItem xs="6">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">No world selected.</MudPaper>
-        </MudItem>
-        <MudItem xs="6">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Please choose a world to observe from the navigation bar.</MudPaper>
-        </MudItem>
-    </MudGrid>
-}
-else
-{
-    <WorldGrid WorldName="@WorldName" />
-}
-
-
+<MudGrid Spacing="2">
+    <MudItem xs="8">
+        <MudPaper Elevation="3" Class="px-4 py-6">
+            <WorldGrid WorldName="@WorldName" />
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="4">
+        <WorldSummary WorldName="@WorldName"/>
+        <ServerStatistics />
+    </MudItem>
+    <MudItem xs="8">
+        <GrainCount />
+    </MudItem>
+</MudGrid>
 
 @code
 {

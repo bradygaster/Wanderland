@@ -16,7 +16,13 @@
 </MudPaper>
 
 @code {
-    private ChartOptions options = new ChartOptions() { DisableLegend = true };
+    private ChartOptions options = new ChartOptions() 
+    { 
+        LineStrokeWidth = 4,
+        DisableLegend = true,
+        InterpolationOption = InterpolationOption.NaturalSpline,
+        MaxNumYAxisTicks = 100
+    };
     SystemStatusUpdate? _latestUpdate;
     private List<double> _data = new List<double>();
 

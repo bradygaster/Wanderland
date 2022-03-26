@@ -12,13 +12,16 @@ namespace Wanderland.Web.Shared
     {
         public static Lobby CreateFakeData(this Lobby lobby)
         {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var names = new string[]
+            {
+                "Andy", "Bob", "Charlie", "Danielle", "Eduard", "Francis", "George", "Harry", "Imogen", "Jack", "Karl", "Larry", "Michel", "Nancy", "Ollie", "Phaedrus", "Quincy", "Ralph", "Stephanie", "Trista", "Uma", "Victoria", "Wayne", "Xaxier", "Yancey", "Zeek"
+            };
 
-            foreach (var c in chars)
+            foreach (var c in names)
             {
                 lobby.Wanderers.Add(new Wanderer
                 {
-                    Name = c.ToString()
+                    Name = c
                 });
             }
 

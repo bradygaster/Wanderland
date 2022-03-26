@@ -2,28 +2,22 @@
 @inject IWanderlandHttpApiClient _apiClient
 @inject WanderlandHubClient _hubClient
 
-<MudGrid Spacing="2">
-    <MudItem xs="8">
-        @for (int row = 0; row < World.Rows; row++)
-        {
-            int currentRow = row;
-            <MudGrid Spacing="2" Justify="Justify.Center" Class="d-flex flex-nowrap">
-                @for (int col = 0; col < World.Columns; col++)
-                {
-                    int currentColumn = col;
-                    <MudItem>
-                        <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName" />
-                    </MudItem>
-                }
-            </MudGrid>
-        }
-    </MudItem>
-    <MudItem xs="4">
-        <WorldSummary WorldName="@WorldName"/>
-        <ServerStatistics />
-        <GrainCount />
-    </MudItem>
-</MudGrid>
+@if (!string.IsNullOrEmpty(WorldName))
+{
+    @for (int row = 0; row < World.Rows; row++)
+    {
+        int currentRow = row;
+        <MudGrid Spacing="2" Justify="Justify.Center" Class="d-flex flex-nowrap">
+            @for (int col = 0; col < World.Columns; col++)
+            {
+                int currentColumn = col;
+                <MudItem>
+                    <Tile Row="@currentRow" Column="@currentColumn" WorldName="@WorldName" />
+                </MudItem>
+            }
+        </MudGrid>
+    }
+}
 
 @code {
     [Parameter]
