@@ -1,6 +1,8 @@
-﻿using Orleans;
+﻿using Microsoft.AspNetCore.SignalR;
+using Orleans;
 using Orleans.Configuration;
 using Orleans.Runtime;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
@@ -20,9 +22,11 @@ namespace Wanderland.Web.Server.Grains
 
         public MonsterGrain(
             [PersistentState("wanderer", "wandererStorage")] IPersistentState<Wanderer> wanderer, 
-            ILogger<WandererGrain> logger) : base(wanderer, logger)
+            ILogger<WandererGrain> logger,
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHubContext) : base(wanderer, logger, wanderlandHubContext)
         {
         }
+
         public override Task GoNorth()
         {
             Wanderer.State.AvatarImageUrl = Wanderer.State.AvatarImageUrl == MONSTER_UP_1 ? MONSTER_UP_2 : MONSTER_UP_1;
@@ -47,13 +51,6 @@ namespace Wanderland.Web.Server.Grains
             return base.GoEast();
         }
 
-        public async Task Eat(IWandererGrain grain)
-        {
-            Wanderer.State.AvatarImageUrl = MONSTER;
-            grain.Dispose();
-            await SpeedUp(4);
-        }
-
         ITileGrain _currentTileGrain;
         public override async Task SetLocation(ITileGrain tileGrain)
         {
@@ -73,6 +70,13 @@ namespace Wanderland.Web.Server.Grains
         public async Task SetInfo(Monster wanderer)
         {
             await base.SetInfo(wanderer);
+        }
+
+        public async Task Eat(IWandererGrain grain)
+        {
+            Wanderer.State.AvatarImageUrl = MONSTER;
+            grain.Dispose();
+            await SpeedUp(4);
         }
 
         private async Task EatEverythingHere(ITileGrain tileGrain)

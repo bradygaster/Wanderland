@@ -1,6 +1,8 @@
-﻿using Orleans;
+﻿using Microsoft.AspNetCore.SignalR;
+using Orleans;
 using Orleans.Configuration;
 using Orleans.Runtime;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
@@ -9,14 +11,17 @@ namespace Wanderland.Web.Server.Grains
     public class WandererGrain : Grain, IWandererGrain
     {
         public WandererGrain([PersistentState(Constants.PersistenceKeys.WandererStateName, Constants.PersistenceKeys.WandererStorageName)]
-            IPersistentState<Wanderer> wanderer, ILogger<WandererGrain> logger)
+            IPersistentState<Wanderer> wanderer, ILogger<WandererGrain> logger,
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHubContext)
         {
             Wanderer = wanderer;
             Logger = logger;
+            WanderlandHubContext = wanderlandHubContext;
         }
 
         public IPersistentState<Wanderer> Wanderer { get; }
         public ILogger<WandererGrain> Logger { get; }
+        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
 
         private TimeSpan GetMoveDuration()
         {
@@ -27,20 +32,7 @@ namespace Wanderland.Web.Server.Grains
         private void ResetWanderTimer()
         {
             _timer?.Dispose();
-            _timer = RegisterTimer(async _ =>
-            {
-                try
-                {
-                    await Wander();
-                }
-                catch
-                {
-                    _timer?.Dispose();
-                    // swallowing this exception because this could 
-                    // mean this wanderer's world and tiles have
-                    // been wiped and they're still hanging out.
-                }
-            }, null, GetMoveDuration(), GetMoveDuration());
+            _timer = RegisterTimer(async _ => await Wander(), null, GetMoveDuration(), GetMoveDuration());
         }
 
         public override async Task OnActivateAsync(CancellationToken cancellationToken)
@@ -80,17 +72,6 @@ namespace Wanderland.Web.Server.Grains
             await tileGrain.Arrives(Wanderer.State);
 
             ResetWanderTimer();
-        }
-
-        public async void Dispose()
-        {
-            _timer.Dispose();
-
-            if(Wanderer.State.GetType().Equals(typeof(Wanderer))) // don't put monsters back in
-            {
-                var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
-                await lobbyGrain.JoinLobby(Wanderer.State);
-            }
         }
 
         public virtual Task SpeedUp(int ratio)
@@ -192,6 +173,26 @@ namespace Wanderland.Web.Server.Grains
             // move to the next tile
             var nextTileGrain = GrainFactory.GetGrain<ITileGrain>(tileGrainName);
             await SetLocation(nextTileGrain);
+        }
+
+        public async void Dispose()
+        {
+            _timer.Dispose();
+
+            if (Wanderer.State.GetType().Equals(typeof(Wanderer))) // don't put monsters back in
+            {
+                var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+                await lobbyGrain.JoinLobby(Wanderer.State);
+
+                Wanderer.State.Health = WandererHealthState.Dead;
+                await WanderlandHubContext.Clients.All.PlayerUpdated(
+                    new PlayerUpdatedEventArgs
+                    {
+                        Player = Wanderer.State
+                    });
+            }
+
+            base.DeactivateOnIdle();
         }
     }
 }

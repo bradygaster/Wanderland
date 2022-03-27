@@ -136,6 +136,8 @@ namespace Wanderland.Web.Server.Grains
             Worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
             await WanderlandHubContext.Clients.All.WorldListUpdated();
             WorldsCompleted += 1;
+
+            worldGrain.Dispose();
         }
 
         public async Task GenerateNewWorld()

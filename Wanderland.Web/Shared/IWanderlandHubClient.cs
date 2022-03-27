@@ -10,6 +10,7 @@ namespace Wanderland.Web.Shared
         Task WorldAgeUpdated(WorldAgeUpdatedEventArgs args);
         Task SystemStatusReceived(SystemStatusUpdateReceivedEventArgs args);
         Task PlayerListUpdated(PlayerListUpdatedEventArgs args);
+        Task PlayerUpdated(PlayerUpdatedEventArgs args);
     }
 
     public class WorldListUpdatedEventArgs
@@ -35,5 +36,10 @@ namespace Wanderland.Web.Shared
     public class PlayerListUpdatedEventArgs
     {
         public List<Wanderer> Players { get; set; } = new List<Wanderer>();
+    }
+
+    public class PlayerUpdatedEventArgs
+    {
+        public Wanderer Player { get; set; }
     }
 }

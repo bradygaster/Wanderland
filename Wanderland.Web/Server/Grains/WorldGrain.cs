@@ -7,7 +7,7 @@ using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
-    [CollectionAgeLimit(Minutes = 2)]
+    [CollectionAgeLimit(Minutes = 6)]
     public class WorldGrain : Grain, IWorldGrain
     {
         public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName,
@@ -95,6 +95,18 @@ namespace Wanderland.Web.Server.Grains
         {
             World.State = world;
             return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            foreach (var tile in World.State.Tiles)
+            {
+                var tileGrain = GrainFactory.GetGrain<ITileGrain>($"{tile.World}/{tile.Row}/{tile.Column}");
+                tileGrain.Dispose();
+            }
+
+            _timer.Dispose();
+            base.DeactivateOnIdle();
         }
     }
 }

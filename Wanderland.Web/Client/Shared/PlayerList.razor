@@ -10,8 +10,9 @@
                 {
                     @foreach (var player in _players)
                     {
+                        var color = player.Health == WandererHealthState.Healthy ? Color.Success : Color.Error;
                         <MudListItem>
-                            <MudAvatar Class="mr-2" Color="Color.Primary" Variant="Variant.Filled">@player.Name.First()</MudAvatar>
+                            <MudAvatar Class="mr-2" Color="@color" Variant="Variant.Filled">@player.Name.First()</MudAvatar>
                             @player.Name
                         </MudListItem>
                     }
@@ -29,7 +30,18 @@
     {
         _hubClient.PlayerListUpdate -= OnPlayerListUpdated;
         _hubClient.PlayerListUpdate += OnPlayerListUpdated;
+        _hubClient.PlayerUpdate -= OnPlayerUpdated;
+        _hubClient.PlayerUpdate += OnPlayerUpdated;
         await base.OnInitializedAsync();
+    }
+
+    private void OnPlayerUpdated(object? sender, PlayerUpdatedEventArgs args)
+    {
+        if (_players != null && _players.Any((x => x.Name == args.Player.Name)))
+        {
+            _players.First(x => x.Name == args.Player.Name).Health = args.Player.Health;
+            base.StateHasChanged();
+        }
     }
 
     private void OnPlayerListUpdated(object? sender, PlayerListUpdatedEventArgs args)
