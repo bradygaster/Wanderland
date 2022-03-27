@@ -85,7 +85,6 @@ namespace Wanderland.Web.Server.Grains
                 var unfortunateGrain = GrainFactory.GetGrain<IWandererGrain>(_.Name, typeof(WandererGrain).FullName);
                 await Eat(unfortunateGrain);
                 await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
-                unfortunateGrain.Dispose();
             });
         }
     }
