@@ -64,6 +64,8 @@ namespace Wanderland.Web.Server.Grains
                         WorldsCompleted += 1;
                         await WanderlandHubContext.Clients.All.WorldListUpdated();
                         Worlds.State.Remove(remove);
+                        var worldGrain = GrainFactory.GetGrain<IWorldGrain>(remove);
+                        worldGrain.Dispose();
                     }
                 }
 
@@ -136,6 +138,8 @@ namespace Wanderland.Web.Server.Grains
             Worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
             await WanderlandHubContext.Clients.All.WorldListUpdated();
             WorldsCompleted += 1;
+
+            worldGrain.Dispose();
         }
 
         public async Task GenerateNewWorld()
@@ -159,7 +163,7 @@ namespace Wanderland.Web.Server.Grains
                     await newWandererGrain.SetInfo(new Wanderer
                     {
                         Name = wandererName,
-                        Speed = new Random().Next(300, 800)
+                        Speed = new Random().Next(200, 500)
                     });
                     var nextTileGrainId = $"{worldName}/{new Random().Next(0, newWorld.Rows - 1)}/{new Random().Next(0, newWorld.Columns - 1)}";
                     var tileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);

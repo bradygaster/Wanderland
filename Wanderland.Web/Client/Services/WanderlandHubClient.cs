@@ -18,6 +18,8 @@ namespace Wanderland.Web.Client.Services
         public event EventHandler<TileUpdatedEventArgs> TileUpdate;
         public event EventHandler<WorldAgeUpdatedEventArgs> WorldAgeUpdate;
         public event EventHandler<SystemStatusUpdateReceivedEventArgs> SystemStatusUpdate;
+        public event EventHandler<PlayerListUpdatedEventArgs> PlayerListUpdate;
+        public event EventHandler<PlayerUpdatedEventArgs> PlayerUpdate;
 
         public async Task Start()
         {
@@ -37,6 +39,8 @@ namespace Wanderland.Web.Client.Services
             Connection.On<Tile>("TileUpdated", TileUpdated);
             Connection.On<WorldAgeUpdatedEventArgs>("WorldAgeUpdated", WorldAgeUpdated);
             Connection.On<SystemStatusUpdateReceivedEventArgs>("SystemStatusReceived", SystemStatusReceived);
+            Connection.On<PlayerListUpdatedEventArgs>("PlayerListUpdated", PlayerListUpdated);
+            Connection.On<PlayerUpdatedEventArgs>("PlayerUpdated", PlayerUpdated);
 
             await Connection.StartAsync();
         }
@@ -85,6 +89,24 @@ namespace Wanderland.Web.Client.Services
             if(SystemStatusUpdate != null)
             {
                 SystemStatusUpdate(this, args);
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task PlayerListUpdated(PlayerListUpdatedEventArgs args)
+        {
+            if (PlayerListUpdate != null)
+            {
+                PlayerListUpdate(this, args);
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task PlayerUpdated(PlayerUpdatedEventArgs args)
+        {
+            if (PlayerUpdate != null)
+            {
+                PlayerUpdate(this, args);
             }
             return Task.CompletedTask;
         }

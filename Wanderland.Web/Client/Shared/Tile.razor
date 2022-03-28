@@ -4,6 +4,7 @@
 <MudPaper Height="80px"
           Width="80px"
           Class="d-flex align-center justify-center"
+          Elevation="8"
           Style='@($"background:{GetColorForTile()}")'>
     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary">
         @if (Model != null)
@@ -12,7 +13,7 @@
             {
                 if (string.IsNullOrEmpty(wanderer.AvatarImageUrl))
                 {
-                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled">@wanderer.Name</MudAvatar>
+                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled">@wanderer.Name.First()</MudAvatar>
                 }
                 else
                 {
@@ -33,7 +34,7 @@
     [Parameter]
     public string? WorldName { get; set; }
 
-    private Wanderland.Web.Shared.Tile Model { get; set; }
+    private Wanderland.Web.Shared.Tile? Model { get; set; }
     private TileType TileType;
     private bool shouldRender = false;
 

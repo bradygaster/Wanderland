@@ -1,7 +1,9 @@
 ﻿@inject WanderlandHubClient _hubClient
 @inject IWanderlandHttpApiClient _apiClient
 
-<MudPaper>
+@if(!string.IsNullOrEmpty(WorldName))
+{
+<MudPaper Elevation="8">
     <MudCard>
         <MudCardHeader>
             <CardHeaderContent>
@@ -21,6 +23,7 @@
         </MudCardContent>
     </MudCard>
 </MudPaper>
+}
 
 @code {
     [Parameter]

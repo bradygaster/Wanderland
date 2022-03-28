@@ -2,16 +2,13 @@
 
 @if (_latestUpdate != null)
 {
-    <MudPaper Class="my-5">
+    <MudPaper Class="my-5" Elevation="8">
         <MudCard>
             <MudCardHeader>
                 <CardHeaderContent>
                     <MudText Typo="Typo.h3">Server Statistics</MudText>
                     <MudText Typo="Typo.body1">Details about the wanderland server. To see more real-time diagnostic information, click the dashboard button.</MudText>
                 </CardHeaderContent>
-                <CardHeaderActions>
-                    <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Default" Target="_blank" Link="/dashboard" Title="View the Orleans Dashboard" />
-                </CardHeaderActions>
             </MudCardHeader>
             <MudCardContent>
                 <MudListItem title="Server started" Avatar="@Icons.Material.Filled.CalendarMonth" IconColor="Color.Primary">
@@ -32,7 +29,7 @@
 }
 
 @code {
-    SystemStatusUpdate _latestUpdate;
+    SystemStatusUpdate? _latestUpdate;
 
     protected override async Task OnInitializedAsync()
     {

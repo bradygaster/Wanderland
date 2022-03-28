@@ -7,7 +7,7 @@ using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
-    [CollectionAgeLimit(Minutes = 2)]
+    [CollectionAgeLimit(Minutes = 10)]
     public class WorldGrain : Grain, IWorldGrain
     {
         public WorldGrain([PersistentState(Constants.PersistenceKeys.WorldStateName,
@@ -67,7 +67,7 @@ namespace Wanderland.Web.Server.Grains
             var thingsLeft = World.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
             Logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {World.State.Name}");
 
-            return Task.FromResult(thingsLeft is not {Count: > 0 });
+            return Task.FromResult(thingsLeft is not {Count: > 1 });
         }
 
         Task<World> IWorldGrain.GetWorld()
@@ -95,6 +95,18 @@ namespace Wanderland.Web.Server.Grains
         {
             World.State = world;
             return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            foreach (var tile in World.State.Tiles)
+            {
+                var tileGrain = GrainFactory.GetGrain<ITileGrain>($"{tile.World}/{tile.Row}/{tile.Column}");
+                tileGrain.Dispose();
+            }
+
+            _timer.Dispose();
+            base.DeactivateOnIdle();
         }
     }
 }

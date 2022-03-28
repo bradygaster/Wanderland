@@ -1,0 +1,52 @@
+﻿@inject WanderlandHubClient _hubClient
+
+<MudPaper Elevation="8" Class="my-5">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h3">Players</MudText>
+            <MudText Typo="Typo.body1">Players in this round of the game.</MudText>
+            <MudList>
+                @if (_players != null)
+                {
+                    @foreach (var player in _players)
+                    {
+                        var color = player.Health == WandererHealthState.Healthy ? Color.Success : Color.Error;
+                        <MudListItem>
+                            <MudAvatar Class="mr-2" Color="@color" Variant="Variant.Filled">@player.Name.First()</MudAvatar>
+                            @player.Name
+                        </MudListItem>
+                    }
+                }
+            </MudList>
+        </MudCardContent>
+    </MudCard>
+</MudPaper>
+
+
+@code {
+    private List<Wanderer>? _players = new List<Wanderer>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubClient.PlayerListUpdate -= OnPlayerListUpdated;
+        _hubClient.PlayerListUpdate += OnPlayerListUpdated;
+        _hubClient.PlayerUpdate -= OnPlayerUpdated;
+        _hubClient.PlayerUpdate += OnPlayerUpdated;
+        await base.OnInitializedAsync();
+    }
+
+    private void OnPlayerUpdated(object? sender, PlayerUpdatedEventArgs args)
+    {
+        if (_players != null && _players.Any((x => x.Name == args.Player.Name)))
+        {
+            _players.First(x => x.Name == args.Player.Name).Health = args.Player.Health;
+            base.StateHasChanged();
+        }
+    }
+
+    private void OnPlayerListUpdated(object? sender, PlayerListUpdatedEventArgs args)
+    {
+        _players = args.Players;
+        base.StateHasChanged();
+    }
+}

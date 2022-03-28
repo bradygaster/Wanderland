@@ -1,5 +1,7 @@
-﻿using Orleans;
+﻿using Microsoft.AspNetCore.SignalR;
+using Orleans;
 using Orleans.Runtime;
+using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
@@ -7,24 +9,14 @@ namespace Wanderland.Web.Server.Grains
     public class LobbyGrain : Grain, ILobbyGrain
     {
         private IPersistentState<Lobby> Lobby {  get; set; }
+        public IHubContext<WanderlandHub, IWanderlandHubClient> WanderlandHubContext { get; }
 
         public LobbyGrain([PersistentState(Constants.PersistenceKeys.LobbyStateName, Constants.PersistenceKeys.LobbyStorageName)]
-            IPersistentState<Lobby> lobby)
+            IPersistentState<Lobby> lobby, 
+            IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHubContext)
         {
             Lobby = lobby;
-        }
-
-        public async Task<List<Wanderer>> GetPlayersForNextWorld()
-        {
-            if(Lobby.State.Wanderers.Count <= 10)
-            {
-                Lobby.State.CreateFakeData();
-            }
-
-            var tmp = Lobby.State.Wanderers.Take(10).ToList();
-            tmp.ForEach(_ => Lobby.State.Wanderers.RemoveAll(w => w.Name.Equals(_.Name, StringComparison.OrdinalIgnoreCase)));
-            await Lobby.WriteStateAsync();
-            return tmp;
+            WanderlandHubContext = wanderlandHubContext;
         }
 
         public async Task<List<Wanderer>> GetPlayersInLobbby()
@@ -45,9 +37,26 @@ namespace Wanderland.Web.Server.Grains
             await Lobby.WriteStateAsync();
         }
 
-        public Task WorldReady(World world)
+        async Task<List<Wanderer>> ILobbyGrain.GetPlayersForNextWorld()
         {
-            throw new NotImplementedException();
+            if (Lobby.State.Wanderers.Count <= 10)
+            {
+                Lobby.State.CreateFakeData();
+            }
+
+            var tmp = Lobby.State.Wanderers.Take(10).ToList();
+            tmp.ForEach(_ => Lobby.State.Wanderers.RemoveAll(w => w.Name.Equals(_.Name, StringComparison.OrdinalIgnoreCase)));
+            await Lobby.WriteStateAsync();
+            await PlayersForNextWorldChosen(tmp);
+            return tmp;
+        }
+
+        public async Task PlayersForNextWorldChosen(List<Wanderer> wanderers)
+        {
+            await WanderlandHubContext.Clients.All.PlayerListUpdated(new PlayerListUpdatedEventArgs
+            {
+                Players = wanderers
+            });
         }
     }
 }

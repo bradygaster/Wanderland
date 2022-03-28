@@ -54,5 +54,24 @@ namespace Wanderland.Web.Server.Grains
             Tile.State = tile;
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+            var thingsHere = Tile.State.ThingsHere;
+            foreach (var thing in thingsHere)
+            {
+                if(thing as Monster != null)
+                {
+                    var monsterGrain = GrainFactory.GetGrain<IMonsterGrain>(thing.Name);
+                    monsterGrain.Dispose();
+                }
+                else if (thing as Wanderer != null)
+                {
+                    var wandererGrain = GrainFactory.GetGrain<IWandererGrain>(thing.Name);
+                    wandererGrain.Dispose();
+                }
+            }
+            base.DeactivateOnIdle();
+        }
     }
 }
