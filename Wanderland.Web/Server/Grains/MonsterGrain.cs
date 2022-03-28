@@ -7,7 +7,7 @@ using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
-    [CollectionAgeLimit(Minutes = 2)]
+    [CollectionAgeLimit(Minutes = 10)]
     public class MonsterGrain : WandererGrain, IMonsterGrain
     {
         const string MONSTER_LEFT_1 = "/img/monster-left-1.png";

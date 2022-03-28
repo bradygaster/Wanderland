@@ -7,7 +7,7 @@ using Wanderland.Web.Shared;
 
 namespace Wanderland.Web.Server.Grains
 {
-    [CollectionAgeLimit(Minutes = 2)]
+    [CollectionAgeLimit(Minutes = 10)]
     public class WandererGrain : Grain, IWandererGrain
     {
         public WandererGrain([PersistentState(Constants.PersistenceKeys.WandererStateName, Constants.PersistenceKeys.WandererStorageName)]

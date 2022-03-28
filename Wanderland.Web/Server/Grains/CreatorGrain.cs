@@ -64,6 +64,8 @@ namespace Wanderland.Web.Server.Grains
                         WorldsCompleted += 1;
                         await WanderlandHubContext.Clients.All.WorldListUpdated();
                         Worlds.State.Remove(remove);
+                        var worldGrain = GrainFactory.GetGrain<IWorldGrain>(remove);
+                        worldGrain.Dispose();
                     }
                 }
 
