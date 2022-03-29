@@ -12,13 +12,17 @@ builder.Services.AddOpenTelemetryTracing(b =>
 {
     b.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("Wanderland.Server"));
     b.AddSource("Microsoft.Orleans");
+
+    // Add some exporters if you want it to do anything
+    /*
     b.AddJaegerExporter(o =>
     {
         o.AgentHost = "localhost";
         o.AgentPort = 6831;
     });
-    b.AddAspNetCoreInstrumentation();
     b.AddConsoleExporter();
+    */
+    b.AddAspNetCoreInstrumentation();
     b.AddHttpClientInstrumentation();
 });
 

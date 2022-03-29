@@ -34,7 +34,7 @@ public class WandererGrain : Grain, IWandererGrain
     private void ResetWanderTimer()
     {
         _timer?.Dispose();
-        _timer = RegisterTimer(async _ => await Wander(), null, GetMoveDuration(), GetMoveDuration());
+        _timer = RegisterTimer(async Task (_) => await Wander(), null, GetMoveDuration(), GetMoveDuration());
     }
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
@@ -177,10 +177,8 @@ public class WandererGrain : Grain, IWandererGrain
         await SetLocation(nextTileGrain);
     }
 
-    public async ValueTask OnDestroyWorld()
+    public async Task OnDestroyed()
     {
-        _timer.Dispose();
-
         if (Wanderer.State.GetType().Equals(typeof(Wanderer))) // don't put monsters back in
         {
             var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
@@ -194,6 +192,6 @@ public class WandererGrain : Grain, IWandererGrain
                 });
         }
 
-        base.DeactivateOnIdle();
+        _timer?.Dispose();
     }
 }

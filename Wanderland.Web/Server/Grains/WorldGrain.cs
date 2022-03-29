@@ -32,27 +32,19 @@ public class WorldGrain : Grain, IWorldGrain
         _timer?.Dispose();
         _timer = RegisterTimer(async _ =>
         {
-            try
+            var started = _world.State.Started;
+            var expires = started.AddMinutes(_worldLifetimeThresholdInMinutes);
+            if (DateTime.Now > expires)
             {
-                var started = _world.State.Started;
-                var expires = started.AddMinutes(_worldLifetimeThresholdInMinutes);
-                if (DateTime.Now > expires)
-                {
-                    await GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(this);
-                    _timer?.Dispose();
-                }
-                else
-                {
-                    await _wanderlandHub.Clients.Group(_world.State.Name).WorldAgeUpdated(new WorldAgeUpdatedEventArgs
-                    {
-                        World = _world.State.Name,
-                        Age = _world.State.Started - DateTime.Now
-                    });
-                }
+                await GrainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(this);
             }
-            catch
+            else
             {
-                _timer?.Dispose();
+                await _wanderlandHub.Clients.Group(_world.State.Name).WorldAgeUpdated(new WorldAgeUpdatedEventArgs
+                {
+                    World = _world.State.Name,
+                    Age = _world.State.Started - DateTime.Now
+                });
             }
         }, null, TimeSpan.FromMilliseconds(1_000), TimeSpan.FromMilliseconds(1_000));
     }
@@ -65,10 +57,10 @@ public class WorldGrain : Grain, IWorldGrain
 
     public Task<bool> IsWorldEmpty()
     {
-        var thingsLeft = _world.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
-        _logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {_world.State.Name}");
+        var thingsLeft = _world.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).Count();
+        _logger.LogInformation($"There are {thingsLeft} Wanderers in {_world.State.Name}");
 
-        return Task.FromResult(thingsLeft is not { Count: > 1 });
+        return Task.FromResult(thingsLeft <= 1);
     }
 
     Task<World> IWorldGrain.GetWorld() => Task.FromResult(_world.State);
@@ -95,7 +87,7 @@ public class WorldGrain : Grain, IWorldGrain
         return Task.CompletedTask;
     }
 
-    public async ValueTask OnDestroyWorld()
+    public Task OnDestroyed()
     {
         foreach (var tile in _world.State.Tiles)
         {
@@ -104,11 +96,11 @@ public class WorldGrain : Grain, IWorldGrain
 
             if (tileGrain is not null)
             {
-                await tileGrain.OnDestroyWorld();
+                tileGrain.OnDestroyed().Ignore();
             }
         }
 
         _timer?.Dispose();
-        base.DeactivateOnIdle();
+        return Task.CompletedTask;
     }
 }

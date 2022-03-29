@@ -75,7 +75,7 @@ public class MonsterGrain : WandererGrain, IMonsterGrain
     public async Task Eat(IWandererGrain grain)
     {
         Wanderer.State.AvatarImageUrl = MONSTER;
-        await grain.OnDestroyWorld();
+        await grain.OnDestroyed();
         await SpeedUp(4);
     }
 

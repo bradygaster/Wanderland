@@ -69,7 +69,7 @@ public class CreatorGrain : Grain, ICreatorGrain
                     await _wanderlandHubContext.Clients.All.WorldListUpdated();
                     _worlds.State.Remove(remove);
                     var worldGrain = GrainFactory.GetGrain<IWorldGrain>(remove);
-                    await worldGrain.OnDestroyWorld();
+                    await worldGrain.OnDestroyed();
                 }
             }
 
@@ -142,7 +142,7 @@ public class CreatorGrain : Grain, ICreatorGrain
         await _wanderlandHubContext.Clients.All.WorldListUpdated();
         WorldsCompleted += 1;
 
-        await worldGrain.OnDestroyWorld();
+        await worldGrain.OnDestroyed();
     }
 
     public async Task GenerateNewWorld()

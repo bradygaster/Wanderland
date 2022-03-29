@@ -54,17 +54,17 @@ public sealed class TileGrain : Grain, ITileGrain
         return Task.CompletedTask;
     }
 
-    public async ValueTask OnDestroyWorld()
+    public Task OnDestroyed()
     {
         var thingsHere = Tile.State.ThingsHere;
         foreach (var thing in thingsHere)
         {
             if (thing is IDestroyableGrain grain)
             {
-                await grain.OnDestroyWorld();
+                grain.OnDestroyed().Ignore();
             }
         }
 
-        base.DeactivateOnIdle();
+        return Task.CompletedTask;
     }
 }
