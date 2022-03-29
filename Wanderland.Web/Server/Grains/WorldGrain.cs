@@ -95,7 +95,7 @@ public class WorldGrain : Grain, IWorldGrain
         return Task.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    public async ValueTask OnDestroyWorld()
     {
         foreach (var tile in _world.State.Tiles)
         {
@@ -104,11 +104,11 @@ public class WorldGrain : Grain, IWorldGrain
 
             if (tileGrain is not null)
             {
-                await tileGrain.DisposeAsync();
+                await tileGrain.OnDestroyWorld();
             }
         }
 
-        _timer.Dispose();
+        _timer?.Dispose();
         base.DeactivateOnIdle();
     }
 }

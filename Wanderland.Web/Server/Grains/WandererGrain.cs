@@ -177,7 +177,7 @@ public class WandererGrain : Grain, IWandererGrain
         await SetLocation(nextTileGrain);
     }
 
-    public async ValueTask DisposeAsync()
+    public async ValueTask OnDestroyWorld()
     {
         _timer.Dispose();
 

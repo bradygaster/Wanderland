@@ -2,7 +2,7 @@
 
 namespace Wanderland.Web.Shared;
 
-public interface ITileGrain : IGrainWithStringKey, IAsyncDisposable
+public interface ITileGrain : IGrainWithStringKey, IDestroyableGrain
 {
     Task SetTile(Tile tile);
     Task<Tile> GetTile();
