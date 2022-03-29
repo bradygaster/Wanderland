@@ -28,7 +28,7 @@ public sealed class TileGrain : Grain, ITileGrain
 
     async Task ITileGrain.Arrives(Thing thing)
     {
-        if (!Tile.State.ThingsHere.Any(x => x.Name == thing.Name))
+        if (!Tile.State.ThingsHere.Any(x => x.Name == thing.Name) && !string.IsNullOrWhiteSpace(Tile.State.World))
         {
             Tile.State.ThingsHere.Add(thing);
             await WanderlandHubContext.Clients.Group(Tile.State.World).TileUpdated(Tile.State);
@@ -54,23 +54,17 @@ public sealed class TileGrain : Grain, ITileGrain
         return Task.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    public async ValueTask OnDestroyWorld()
     {
         var thingsHere = Tile.State.ThingsHere;
         foreach (var thing in thingsHere)
         {
-            var disposable = thing switch
+            if (thing is IDestroyableGrain grain)
             {
-                Monster monster => GrainFactory.GetGrain<IMonsterGrain>(monster.Name),
-                Wanderer wanderer => GrainFactory.GetGrain<IWandererGrain>(wanderer.Name),
-                _ => default(IAsyncDisposable)
-            };
-
-            if (disposable is not null)
-            {
-                await disposable.DisposeAsync();
+                await grain.OnDestroyWorld();
             }
         }
+
         base.DeactivateOnIdle();
     }
 }
