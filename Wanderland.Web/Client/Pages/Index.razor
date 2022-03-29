@@ -29,8 +29,8 @@
     {
         if (firstRender)
         {
-            _hubClient.WorldListUpdate -= async (s, e) => await RefreshWorlds();
-            _hubClient.WorldListUpdate += async (s, e) => await RefreshWorlds();
+            _hubClient.WorldListUpdate -= RefreshWorlds;
+            _hubClient.WorldListUpdate += RefreshWorlds;
             await _hubClient.Start();
         }
 
@@ -41,18 +41,24 @@
     {
         if (string.IsNullOrEmpty(WorldName))
         {
-            await RefreshWorlds();
+            await RefreshWorlds(null);
         }
 
         await base.OnInitializedAsync();
     }
 
-    private async Task RefreshWorlds()
+    private async Task RefreshWorlds(WorldListUpdatedEventArgs? _)
     {
-        var worlds = await _apiClient.GetWorlds();
-        if (worlds.Any())
+        try
         {
-            WorldName = worlds.First().Name;
+            var worlds = await _apiClient.GetWorlds();
+            if (worlds.Count > 0)
+            {
+                WorldName = worlds.First().Name;
+            }
+        }
+        finally
+        {
             StateHasChanged();
         }
     }

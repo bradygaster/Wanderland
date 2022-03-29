@@ -12,7 +12,7 @@
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Default"
-                               OnClick="_ => { _apiClient.DeleteWorld(WorldName); StateHasChanged(); }" />
+                               OnClick="async _ => { await _apiClient.DeleteWorld(WorldName); StateHasChanged(); }" />
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
@@ -38,9 +38,11 @@
         base.OnInitialized();
     }
 
-    private void OnWorldAgeUpdated(object? sender, WorldAgeUpdatedEventArgs args)
+    private Task OnWorldAgeUpdated(WorldAgeUpdatedEventArgs args)
     {
         _age = args.Age;
         base.StateHasChanged();
+
+        return Task.CompletedTask;
     }
 }

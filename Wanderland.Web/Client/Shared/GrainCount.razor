@@ -16,7 +16,7 @@
 </MudPaper>
 
 @code {
-    private ChartOptions options = new ChartOptions() 
+    private ChartOptions options = new() 
     { 
         LineStrokeWidth = 4,
         DisableLegend = true,
@@ -24,7 +24,7 @@
         MaxNumYAxisTicks = 8
     };
     SystemStatusUpdate? _latestUpdate;
-    private List<double> _data = new List<double>();
+    private List<double> _data = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,20 +39,21 @@
         await base.OnInitializedAsync();
     }
 
-    private void OnSystemUpdateReceived(object? sender, SystemStatusUpdateReceivedEventArgs args)
+    private Task OnSystemUpdateReceived(SystemStatusUpdateReceivedEventArgs args)
     {
         _latestUpdate = args.SystemStatusUpdate;
         _data.RemoveAt(0);
         _data.Add(args.SystemStatusUpdate.GrainsActive);
         Series = new List<ChartSeries>()
         {
-            new ChartSeries() { Name = "Grain Count", Data = _data.ToArray() }
+            new() { Name = "Grain Count", Data = _data.ToArray() }
         };
 
         base.StateHasChanged();
+        return Task.CompletedTask;
     }
 
     public List<ChartSeries> Series = new List<ChartSeries>();
 
-    Random random = new Random();
+    Random random = Random.Shared;
 }

@@ -4,61 +4,62 @@ using Orleans.Runtime;
 using Wanderland.Web.Server.Hubs;
 using Wanderland.Web.Shared;
 
-namespace Wanderland.Web.Server.Grains
+namespace Wanderland.Web.Server.Grains;
+
+public interface ISignalRGroupMembershipGrain : IGrainWithGuidKey
 {
-    public interface ISignalRGroupMembershipGrain : IGrainWithGuidKey
+    Task ChangeClientWorldGroupMembership(string connectionId, string worldName);
+    Task ClientDisconnects(string connectionId);
+}
+
+public class SignalRGroupMembershipGrain : Grain, ISignalRGroupMembershipGrain
+{
+    private readonly IPersistentState<List<SignalRConnectionToWorldMap>> _groupMemberships;
+    private readonly IHubContext<WanderlandHub> _wanderlandHub;
+    private readonly ILogger<SignalRGroupMembershipGrain> _logger;
+
+    public SignalRGroupMembershipGrain(
+        [PersistentState(
+            stateName: Constants.PersistenceKeys.GroupStateName, 
+            storageName: Constants.PersistenceKeys.GroupStorageName)]
+        IPersistentState<List<SignalRConnectionToWorldMap>> groupMemberships,
+        IHubContext<WanderlandHub> wanderlandHub,
+        ILogger<SignalRGroupMembershipGrain> logger)
     {
-        Task ChangeClientWorldGroupMembership(string connectionId, string worldName);
-        Task ClientDisconnects(string connectionId);
+        _groupMemberships = groupMemberships;
+        _wanderlandHub = wanderlandHub;
+        _logger = logger;
     }
 
-    public class SignalRGroupMembershipGrain : Grain, ISignalRGroupMembershipGrain
+    public async Task ChangeClientWorldGroupMembership(string connectionId, string worldName)
     {
-        private IPersistentState<List<SignalRConnectionToWorldMap>> GroupMemberships { get; }
-        private IHubContext<WanderlandHub> WanderlandHub { get; }
-        private ILogger<SignalRGroupMembershipGrain> Logger { get; }
-
-        public SignalRGroupMembershipGrain(
-            [PersistentState(Constants.PersistenceKeys.GroupStateName, Constants.PersistenceKeys.GroupStorageName)]
-            IPersistentState<List<SignalRConnectionToWorldMap>> groupMemberships,
-            IHubContext<WanderlandHub> wanderlandHub,
-            ILogger<SignalRGroupMembershipGrain> logger)
-        {
-            GroupMemberships = groupMemberships;
-            WanderlandHub = wanderlandHub;
-            Logger = logger;
-        }
-
-        public async Task ChangeClientWorldGroupMembership(string connectionId, string worldName)
-        {
-            await ClientDisconnects(connectionId);
-            await WanderlandHub.Groups.AddToGroupAsync(connectionId, worldName);
-            GroupMemberships.State.Add(new SignalRConnectionToWorldMap 
-            { 
-                ConnectionId = connectionId, 
-                World = worldName 
-            });
-            await GroupMemberships.WriteStateAsync();
-        }
-
-        public async Task ClientDisconnects(string connectionId)
-        {
-            foreach (var mapping in GroupMemberships.State.Where(x => x.ConnectionId == connectionId))
-            {
-                await WanderlandHub.Groups.RemoveFromGroupAsync(mapping.ConnectionId, mapping.World);
-            }
-            GroupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
-            await GroupMemberships.WriteStateAsync();
-        }
+        await ClientDisconnects(connectionId);
+        await _wanderlandHub.Groups.AddToGroupAsync(connectionId, worldName);
+        _groupMemberships.State.Add(new SignalRConnectionToWorldMap 
+        { 
+            ConnectionId = connectionId, 
+            World = worldName 
+        });
+        await _groupMemberships.WriteStateAsync();
     }
 
-    [GenerateSerializer]
-    public class SignalRConnectionToWorldMap
+    public async Task ClientDisconnects(string connectionId)
     {
-        [Id(0)]
-        public string ConnectionId { get; set; }
-
-        [Id(1)]
-        public string World { get; set; }
+        foreach (var mapping in _groupMemberships.State.Where(x => x.ConnectionId == connectionId))
+        {
+            await _wanderlandHub.Groups.RemoveFromGroupAsync(mapping.ConnectionId, mapping.World);
+        }
+        _groupMemberships.State.RemoveAll(x => x.ConnectionId == connectionId);
+        await _groupMemberships.WriteStateAsync();
     }
+}
+
+[GenerateSerializer]
+public class SignalRConnectionToWorldMap
+{
+    [Id(0)]
+    public string ConnectionId { get; set; }
+
+    [Id(1)]
+    public string World { get; set; }
 }

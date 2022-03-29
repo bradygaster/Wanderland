@@ -26,27 +26,30 @@
 @code {
     private List<Wanderer>? _players = new List<Wanderer>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _hubClient.PlayerListUpdate -= OnPlayerListUpdated;
         _hubClient.PlayerListUpdate += OnPlayerListUpdated;
         _hubClient.PlayerUpdate -= OnPlayerUpdated;
         _hubClient.PlayerUpdate += OnPlayerUpdated;
-        await base.OnInitializedAsync();
+
+        base.OnInitialized();
     }
 
-    private void OnPlayerUpdated(object? sender, PlayerUpdatedEventArgs args)
+    private Task OnPlayerUpdated(PlayerUpdatedEventArgs args)
     {
-        if (_players != null && _players.Any((x => x.Name == args.Player.Name)))
+        if (_players?.Any(x => x.Name == args.Player.Name) ?? false)
         {
             _players.First(x => x.Name == args.Player.Name).Health = args.Player.Health;
             base.StateHasChanged();
         }
+        return Task.CompletedTask;
     }
 
-    private void OnPlayerListUpdated(object? sender, PlayerListUpdatedEventArgs args)
+    private Task OnPlayerListUpdated(PlayerListUpdatedEventArgs args)
     {
         _players = args.Players;
         base.StateHasChanged();
+        return Task.CompletedTask;
     }
 }

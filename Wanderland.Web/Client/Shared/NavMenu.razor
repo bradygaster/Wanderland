@@ -1,7 +1,4 @@
-﻿@inject IWanderlandHttpApiClient _apiClient
-@inject WanderlandHubClient _hubClient
-
-<MudAppBar Style='@($"background:{Colors.DeepPurple.Default}")' Fixed="false">
+﻿<MudAppBar Style='@($"background:{Colors.DeepPurple.Default}")' Fixed="false">
     <MudSpacer />
     <MudText Typo="Typo.subtitle1" Class="px-4">
         <MudText Typo="Typo.h2">wanderland.cloud</MudText>
@@ -10,7 +7,3 @@
     <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit"
                    Link="https://github.com/bradygaster/wanderland" Target="_blank" />
 </MudAppBar>
-
-@code
-{
-}

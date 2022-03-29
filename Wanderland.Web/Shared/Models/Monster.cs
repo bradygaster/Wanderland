@@ -1,13 +1,12 @@
 ﻿using Orleans;
 
-namespace Wanderland.Web.Shared
+namespace Wanderland.Web.Shared;
+
+[GenerateSerializer]
+public class Monster : Wanderer
 {
-    [GenerateSerializer]
-    public class Monster : Wanderer
+    public Monster()
     {
-        public Monster()
-        {
-            Speed = 1000;
-        }
+        Speed = 1_000;
     }
 }

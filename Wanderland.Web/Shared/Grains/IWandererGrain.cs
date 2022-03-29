@@ -1,10 +1,9 @@
 ﻿using Orleans;
 
-namespace Wanderland.Web.Shared
+namespace Wanderland.Web.Shared;
+
+public interface IWandererGrain : IWander, IGrainWithStringKey
 {
-    public interface IWandererGrain : IWander, IGrainWithStringKey
-    {
-        Task<Wanderer> GetWanderer();
-        Task SetInfo(Wanderer wanderer);
-    }
+    Task<Wanderer> GetWanderer();
+    Task SetInfo(Wanderer wanderer);
 }
