@@ -1,9 +1,7 @@
-﻿using Bogus;
-using OpenTelemetry.Resources;
+﻿using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Orleans;
 using Wanderland.Web.Server;
-using Wanderland.Web.Server.Grains;
 using Wanderland.Web.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,12 +44,11 @@ app.MapGet("/worlds", async (IGrainFactory grainFactory) =>
 .WithName("GetWorlds")
 .Produces<List<World>>(StatusCodes.Status200OK);
 
-// gets one world
+// delete the world with the given name
 app.MapDelete("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 {
     await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).DestroyWorld(
-        grainFactory.GetGrain<IWorldGrain>(name)
-    );
+        grainFactory.GetGrain<IWorldGrain>(name));
 })
 .WithName("DeleteWorld")
 .Produces(StatusCodes.Status200OK);
@@ -60,8 +57,7 @@ app.MapDelete("/worlds/{name}", async (IGrainFactory grainFactory, string name) 
 app.MapGet("/worlds/{name}", async (IGrainFactory grainFactory, string name) =>
 {
     var world = (await grainFactory.GetGrain<ICreatorGrain>(Guid.Empty).GetWorlds()).FirstOrDefault(w => w.Name.ToLower() == name.ToLower());
-    if (world == null) return Results.NotFound();
-    else return Results.Ok(world);
+    return world is null ? Results.NotFound() : Results.Ok(world);
 })
 .WithName("GetWorld")
 .Produces(StatusCodes.Status404NotFound)
@@ -102,7 +98,7 @@ app.MapGet("/worlds/{name}/tiles/{row}/{column}", async (IGrainFactory grainFact
     var tileGrain = grainFactory.GetGrain<ITileGrain>($"{name}/{row}/{column}");
     var tile = await tileGrain.GetTile();
 
-    if(tile.ThingsHere.Any() && tile.Type == TileType.Barrier)
+    if (tile is { ThingsHere.Count: > 0} and { Type: TileType.Barrier })
     {
         tile.ThingsHere.Clear();
     }

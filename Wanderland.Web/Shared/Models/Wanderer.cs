@@ -1,23 +1,22 @@
 ﻿using Orleans;
 
-namespace Wanderland.Web.Shared
+namespace Wanderland.Web.Shared;
+
+[GenerateSerializer]
+public class Wanderer : Thing
 {
-    [GenerateSerializer]
-    public class Wanderer : Thing
-    {
-        [Id(0)]
-        public int Speed { get; set; } = 200;
+    [Id(0)]
+    public int Speed { get; set; } = 200;
 
-        [Id(1)]
-        public Coordinate Location { get; set; } = new Coordinate();
+    [Id(1)]
+    public Coordinate Location { get; set; } = new();
 
-        [Id(2)]
-        public WandererHealthState Health { get; set; } = WandererHealthState.Healthy;
-    }
+    [Id(2)]
+    public WandererHealthState Health { get; set; } = WandererHealthState.Healthy;
+}
 
-    public enum WandererHealthState
-    {
-        Dead = 0,
-        Healthy = 16
-    }
+public enum WandererHealthState
+{
+    Dead = 0,
+    Healthy = 16
 }

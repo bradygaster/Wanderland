@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider IsDarkMode Theme="@MyCustomTheme" />
+<MudThemeProvider IsDarkMode Theme="@CustomTheme" />
 
 <MudLayout>
     <NavMenu />
@@ -12,11 +12,11 @@
 </MudLayout>
 
 @code {
-    MudTheme MyCustomTheme = new MudTheme()
+    MudTheme CustomTheme = new()
     {
-        Typography = new Typography()
+        Typography = new()
         {
-            Default = new Default()
+            Default = new()
             {
                 FontFamily = new[] { "Barlow Semi Condensed", "sans-serif" }
             },

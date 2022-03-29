@@ -1,5 +1,5 @@
-﻿@inject Wanderland.Web.Shared.IWanderlandHttpApiClient _apiClient
-@inject Wanderland.Web.Client.Services.WanderlandHubClient _hubClient
+﻿@inject IWanderlandHttpApiClient _apiClient
+@inject WanderlandHubClient _hubClient
 
 <MudPaper Height="80px"
           Width="80px"
@@ -40,22 +40,25 @@
 
     protected override bool ShouldRender() => shouldRender;
 
-    private void OnTileUpdated(TileUpdatedEventArgs args)
+    private Task OnTileUpdated(TileUpdatedEventArgs args)
     {
-        if (args.Tile.World == this.WorldName && args.Tile.Row == this.Row && args.Tile.Column == this.Column)
+        if (args.Tile.World == WorldName && 
+            args.Tile.Row == Row && 
+            args.Tile.Column == Column)
         {
             Model = args.Tile;
             base.StateHasChanged();
         }
+        return Task.CompletedTask;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
             Model = await _apiClient.GetTileCurrentState(WorldName, Row, Column);
-            _hubClient.TileUpdate -= (s, args) => OnTileUpdated(args);
-            _hubClient.TileUpdate += (s, args) => OnTileUpdated(args);
+            _hubClient.TileUpdate -= OnTileUpdated;
+            _hubClient.TileUpdate += OnTileUpdated;
             TileType = Model.Type;
             shouldRender = true;
         }
@@ -63,18 +66,23 @@
 
     protected string GetColorForTile()
     {
-        if (Model?.Type == TileType.Barrier)
+        if (Model is null)
+            return Colors.BlueGrey.Darken3;
+
+        if (Model.Type == TileType.Barrier)
             return Colors.Shades.Black;
 
-        if (Model?.Column == 0) return Colors.DeepPurple.Darken3;
-        if (Model?.Column == 1) return Colors.DeepPurple.Darken2;
-        if (Model?.Column == 2) return Colors.DeepPurple.Darken1;
-        if (Model?.Column >= 3 || Model?.Column <= 5) return Colors.DeepPurple.Default;
-        if (Model?.Column == 6) return Colors.DeepPurple.Lighten1;
-        if (Model?.Column == 7) return Colors.DeepPurple.Lighten2;
-        if (Model?.Column == 8) return Colors.DeepPurple.Lighten3;
-        if (Model?.Column == 9) return Colors.DeepPurple.Lighten4;
-        
-        return Colors.BlueGrey.Darken3;
+        return Model.Column switch
+        {
+            0 => Colors.DeepPurple.Darken3,
+            1 => Colors.DeepPurple.Darken2,
+            2 => Colors.DeepPurple.Darken1,
+            >= 3 and < 6 => Colors.DeepPurple.Default,
+            6 => Colors.DeepPurple.Lighten1,
+            7 => Colors.DeepPurple.Lighten2,
+            8 => Colors.DeepPurple.Lighten3,
+            9 => Colors.DeepPurple.Lighten4,
+            _ => Colors.BlueGrey.Darken3
+        };
     }
 }

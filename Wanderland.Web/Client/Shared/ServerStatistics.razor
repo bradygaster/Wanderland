@@ -31,17 +31,19 @@
 @code {
     SystemStatusUpdate? _latestUpdate;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _hubClient.SystemStatusUpdate -= OnSystemUpdateReceived;
         _hubClient.SystemStatusUpdate += OnSystemUpdateReceived;
-        await base.OnInitializedAsync();
+
+        base.OnInitialized();
     }
 
-    private void OnSystemUpdateReceived(object? sender, SystemStatusUpdateReceivedEventArgs args)
+    private Task OnSystemUpdateReceived(SystemStatusUpdateReceivedEventArgs args)
     {
         _latestUpdate = args.SystemStatusUpdate;
 
         base.StateHasChanged();
+        return Task.CompletedTask;
     }
 }

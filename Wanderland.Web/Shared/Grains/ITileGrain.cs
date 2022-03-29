@@ -1,12 +1,11 @@
 ﻿using Orleans;
 
-namespace Wanderland.Web.Shared
+namespace Wanderland.Web.Shared;
+
+public interface ITileGrain : IGrainWithStringKey, IAsyncDisposable
 {
-    public interface ITileGrain : IGrainWithStringKey, IDisposable
-    {
-        Task SetTile(Tile tile);
-        Task<Tile> GetTile();
-        Task Arrives(Thing thing);
-        Task Leaves(Thing thing);
-    }
+    Task SetTile(Tile tile);
+    Task<Tile> GetTile();
+    Task Arrives(Thing thing);
+    Task Leaves(Thing thing);
 }

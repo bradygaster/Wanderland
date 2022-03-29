@@ -22,16 +22,15 @@
 @code {
     [Parameter]
     public string? WorldName { get; set; }
-    public World World { get; set; } = new World();
+    public World World { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(WorldName))
         {
-            World = new World();
-            StateHasChanged();
             World = await _apiClient.GetWorld(WorldName);
             await _hubClient.JoinWorld(WorldName);
+            StateHasChanged();
         }
     }
 }

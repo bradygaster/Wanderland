@@ -1,114 +1,74 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Wanderland.Web.Shared;
 
-namespace Wanderland.Web.Client.Services
+namespace Wanderland.Web.Client.Services;
+
+public class WanderlandHubClient : IWanderlandHubClient
 {
-    public class WanderlandHubClient : IWanderlandHubClient
+    readonly Uri _baseUri;
+    readonly Uri _hubUri;
+
+    HubConnection? _connection;
+
+    public WanderlandHubClient(Uri baseUri)
     {
-        public WanderlandHubClient(Uri baseUri)
+        _baseUri = baseUri;
+        _hubUri = new Uri($"{_baseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
+    }
+
+    public event Func<WorldListUpdatedEventArgs, Task> WorldListUpdate;
+    public event Func<TileUpdatedEventArgs, Task> TileUpdate;
+    public event Func<WorldAgeUpdatedEventArgs, Task> WorldAgeUpdate;
+    public event Func<SystemStatusUpdateReceivedEventArgs, Task> SystemStatusUpdate;
+    public event Func<PlayerListUpdatedEventArgs, Task> PlayerListUpdate;
+    public event Func<PlayerUpdatedEventArgs, Task> PlayerUpdate;
+
+    public async Task Start()
+    {
+        _connection = new HubConnectionBuilder()
+            .WithUrl(_hubUri)
+            .WithAutomaticReconnect()
+            .Build();
+
+        _connection.On(nameof(WorldListUpdated), WorldListUpdated);
+        _connection.On<Tile>(nameof(TileUpdated), TileUpdated);
+        _connection.On<WorldAgeUpdatedEventArgs>(nameof(WorldAgeUpdated), WorldAgeUpdated);
+        _connection.On<SystemStatusUpdateReceivedEventArgs>(nameof(SystemStatusReceived), SystemStatusReceived);
+        _connection.On<PlayerListUpdatedEventArgs>(nameof(PlayerListUpdated), PlayerListUpdated);
+        _connection.On<PlayerUpdatedEventArgs>(nameof(PlayerUpdated), PlayerUpdated);
+
+        await _connection.StartAsync();
+    }
+
+    public string World { get; set; }
+
+    public async Task JoinWorld(string worldName)
+    {
+        World = worldName;
+
+        if (_connection is not null)
         {
-            BaseUri = baseUri;
-            HubUri = new Uri($"{BaseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
-        }
-
-        private HubConnection? Connection { get; set; }
-        private Uri BaseUri { get; set; }
-        private Uri HubUri { get; set; }
-        public event EventHandler<WorldListUpdatedEventArgs> WorldListUpdate;
-        public event EventHandler<TileUpdatedEventArgs> TileUpdate;
-        public event EventHandler<WorldAgeUpdatedEventArgs> WorldAgeUpdate;
-        public event EventHandler<SystemStatusUpdateReceivedEventArgs> SystemStatusUpdate;
-        public event EventHandler<PlayerListUpdatedEventArgs> PlayerListUpdate;
-        public event EventHandler<PlayerUpdatedEventArgs> PlayerUpdate;
-
-        public async Task Start()
-        {
-            Connection = new HubConnectionBuilder()
-                .WithUrl(HubUri)
-                .Build();
-
-            var _ = async () =>
-            {
-                await Task.Delay(new Random().Next(0, 5) * 1000);
-                await Connection.StartAsync();
-            };
-
-            Connection.Closed += async (error) => await _();
-
-            Connection.On("WorldListUpdated", WorldListUpdated);
-            Connection.On<Tile>("TileUpdated", TileUpdated);
-            Connection.On<WorldAgeUpdatedEventArgs>("WorldAgeUpdated", WorldAgeUpdated);
-            Connection.On<SystemStatusUpdateReceivedEventArgs>("SystemStatusReceived", SystemStatusReceived);
-            Connection.On<PlayerListUpdatedEventArgs>("PlayerListUpdated", PlayerListUpdated);
-            Connection.On<PlayerUpdatedEventArgs>("PlayerUpdated", PlayerUpdated);
-
-            await Connection.StartAsync();
-        }
-
-        public string World { get; set; }
-
-        public async Task JoinWorld(string worldName)
-        { 
-            World = worldName;
-
-            if(Connection != null)
-            {
-                await Connection.SendAsync("JoinWorld", worldName);
-            }
-        }
-
-        public Task TileUpdated(Tile tile)
-        {
-            if (TileUpdate != null)
-            {
-                TileUpdate(this, new TileUpdatedEventArgs { Tile = tile });
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task WorldListUpdated()
-        {
-            if (WorldListUpdate != null)
-            {
-                WorldListUpdate(this, new WorldListUpdatedEventArgs());
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task WorldAgeUpdated(WorldAgeUpdatedEventArgs args)
-        {
-            if (WorldAgeUpdate != null)
-            {
-                WorldAgeUpdate(this, args);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task SystemStatusReceived(SystemStatusUpdateReceivedEventArgs args)
-        {
-            if(SystemStatusUpdate != null)
-            {
-                SystemStatusUpdate(this, args);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task PlayerListUpdated(PlayerListUpdatedEventArgs args)
-        {
-            if (PlayerListUpdate != null)
-            {
-                PlayerListUpdate(this, args);
-            }
-            return Task.CompletedTask;
-        }
-
-        public Task PlayerUpdated(PlayerUpdatedEventArgs args)
-        {
-            if (PlayerUpdate != null)
-            {
-                PlayerUpdate(this, args);
-            }
-            return Task.CompletedTask;
+            await _connection.SendAsync(nameof(JoinWorld), worldName);
         }
     }
+
+    public Task TileUpdated(Tile tile) =>
+        TileUpdate?.Invoke(
+            new TileUpdatedEventArgs { Tile = tile }) ?? Task.CompletedTask;
+
+    public Task WorldListUpdated() =>
+        WorldListUpdate?.Invoke(
+            new WorldListUpdatedEventArgs()) ?? Task.CompletedTask;
+
+    public Task WorldAgeUpdated(WorldAgeUpdatedEventArgs args) =>
+        WorldAgeUpdate?.Invoke(args) ?? Task.CompletedTask;
+
+    public Task SystemStatusReceived(SystemStatusUpdateReceivedEventArgs args) =>
+        SystemStatusUpdate?.Invoke(args) ?? Task.CompletedTask;
+
+    public Task PlayerListUpdated(PlayerListUpdatedEventArgs args) =>
+        PlayerListUpdate?.Invoke(args) ?? Task.CompletedTask;
+
+    public Task PlayerUpdated(PlayerUpdatedEventArgs args) =>
+        PlayerUpdate?.Invoke(args) ?? Task.CompletedTask;
 }
