@@ -59,7 +59,16 @@ public class WandererGrain : Grain, IWandererGrain
     {
         Wanderer.State = wanderer;
         await Wanderer.WriteStateAsync();
-        ResetWanderTimer();
+
+        if(Wanderer.State.Health == WandererHealthState.Healthy)
+        {
+            ResetWanderTimer();
+        }
+
+        if (Wanderer.State.Health == WandererHealthState.Dead)
+        {
+            _timer?.Dispose();
+        }
     }
 
     public virtual async Task SetLocation(ITileGrain tileGrain)
@@ -179,8 +188,6 @@ public class WandererGrain : Grain, IWandererGrain
 
     public async ValueTask OnDestroyWorld()
     {
-        _timer.Dispose();
-
         if (Wanderer.State.GetType().Equals(typeof(Wanderer))) // don't put monsters back in
         {
             var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);

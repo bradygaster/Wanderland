@@ -66,8 +66,6 @@ public class WorldGrain : Grain, IWorldGrain
     public Task<bool> IsWorldEmpty()
     {
         var thingsLeft = _world.State.Tiles.SelectMany(_ => _.ThingsHere.Where(_ => _.GetType() == typeof(Wanderer))).ToList();
-        _logger.LogInformation($"There are {thingsLeft.Count} Wanderers in {_world.State.Name}");
-
         return Task.FromResult(thingsLeft is not { Count: > 1 });
     }
 
@@ -93,22 +91,5 @@ public class WorldGrain : Grain, IWorldGrain
     {
         _world.State = world;
         return Task.CompletedTask;
-    }
-
-    public async ValueTask OnDestroyWorld()
-    {
-        foreach (var tile in _world.State.Tiles)
-        {
-            var tileGrain = GrainFactory.GetGrain<ITileGrain>(
-                $"{tile.World}/{tile.Row}/{tile.Column}");
-
-            if (tileGrain is not null)
-            {
-                await tileGrain.OnDestroyWorld();
-            }
-        }
-
-        _timer?.Dispose();
-        base.DeactivateOnIdle();
     }
 }

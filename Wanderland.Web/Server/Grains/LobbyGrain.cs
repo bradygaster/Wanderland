@@ -30,6 +30,7 @@ public class LobbyGrain : Grain, ILobbyGrain
 
     public async Task JoinLobby(Wanderer wanderer)
     {
+        wanderer.Health = WandererHealthState.Healthy;
         Lobby.State.Wanderers.Add(wanderer);
         await Lobby.WriteStateAsync();
     }

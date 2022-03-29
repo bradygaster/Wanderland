@@ -69,7 +69,6 @@ public class CreatorGrain : Grain, ICreatorGrain
                     await _wanderlandHubContext.Clients.All.WorldListUpdated();
                     _worlds.State.Remove(remove);
                     var worldGrain = GrainFactory.GetGrain<IWorldGrain>(remove);
-                    await worldGrain.OnDestroyWorld();
                 }
             }
 
@@ -138,11 +137,27 @@ public class CreatorGrain : Grain, ICreatorGrain
 
     public async Task DestroyWorld(IWorldGrain worldGrain)
     {
+
+        var world = await worldGrain.GetWorld();
+        foreach (var tile in world.Tiles.Where(x => x.ThingsHere.Count > 0))
+        {
+            foreach (var thing in tile.ThingsHere)
+            {
+                if (thing is Wanderer && thing is not Monster)
+                {
+                    var grain = GrainFactory.GetGrain<IWandererGrain>(thing.Name);
+                    if (grain != null)
+                    {
+                        var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+                        await lobbyGrain.JoinLobby(await grain.GetWanderer());
+                    }
+                }
+            }
+        }
+
         _worlds.State.RemoveAll(x => x == worldGrain.GetPrimaryKeyString());
         await _wanderlandHubContext.Clients.All.WorldListUpdated();
         WorldsCompleted += 1;
-
-        await worldGrain.OnDestroyWorld();
     }
 
     public async Task GenerateNewWorld()
@@ -167,7 +182,7 @@ public class CreatorGrain : Grain, ICreatorGrain
                 await newWandererGrain.SetInfo(new Wanderer
                 {
                     Name = wandererName,
-                    Speed = Random.Shared.Next(200, 500)
+                    Speed = Random.Shared.Next(400, 800)
                 });
                 var nextTileGrainId = $"{worldName}/{Random.Shared.Next(0, newWorld.Rows - 1)}/{Random.Shared.Next(0, newWorld.Columns - 1)}";
                 var tileGrain = GrainFactory.GetGrain<ITileGrain>(nextTileGrainId);
@@ -198,7 +213,7 @@ public class CreatorGrain : Grain, ICreatorGrain
             await monsterGrain.SetInfo(new Monster
             {
                 Name = monsterName,
-                Speed = Random.Shared.Next(200, 500)
+                Speed = Random.Shared.Next(500, 800)
             });
             var monsterTileGrainId = $"{worldName}/{Random.Shared.Next(0, newWorld.Rows - 1)}/{Random.Shared.Next(0, newWorld.Columns - 1)}";
             await monsterGrain.SetLocation(GrainFactory.GetGrain<ITileGrain>(monsterTileGrainId));

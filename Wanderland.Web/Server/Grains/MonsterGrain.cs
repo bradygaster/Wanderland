@@ -22,7 +22,7 @@ public class MonsterGrain : WandererGrain, IMonsterGrain
     ITileGrain _currentTileGrain;
 
     public MonsterGrain(
-        [PersistentState("wanderer", "wandererStorage")] IPersistentState<Wanderer> wanderer, 
+        [PersistentState("wanderer", "wandererStorage")] IPersistentState<Wanderer> wanderer,
         ILogger<WandererGrain> logger,
         IHubContext<WanderlandHub, IWanderlandHubClient> wanderlandHubContext) : base(wanderer, logger, wanderlandHubContext)
     {
@@ -69,14 +69,22 @@ public class MonsterGrain : WandererGrain, IMonsterGrain
 
     public async Task SetInfo(Monster wanderer)
     {
+        wanderer.AvatarImageUrl = MONSTER;
         await base.SetInfo(wanderer);
     }
 
     public async Task Eat(IWandererGrain grain)
     {
         Wanderer.State.AvatarImageUrl = MONSTER;
-        await grain.OnDestroyWorld();
-        await SpeedUp(4);
+        var wanderer = await grain.GetWanderer();
+        wanderer.Health = WandererHealthState.Dead;
+        await grain.SetInfo(wanderer);
+        await WanderlandHubContext.Clients.All.PlayerUpdated(new PlayerUpdatedEventArgs
+        {
+            Player = wanderer
+        });
+
+        await SpeedUp(6);
     }
 
     private async Task EatEverythingHere(ITileGrain tileGrain)
@@ -88,7 +96,10 @@ public class MonsterGrain : WandererGrain, IMonsterGrain
         {
             var unfortunateGrain = GrainFactory.GetGrain<IWandererGrain>(_.Name, typeof(WandererGrain).FullName);
             await Eat(unfortunateGrain);
-            await tileGrain.Leaves(await unfortunateGrain.GetWanderer());
+            var theUnfortunate = await unfortunateGrain.GetWanderer();
+            await tileGrain.Leaves(theUnfortunate);
+            var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(Guid.Empty);
+            await lobbyGrain.JoinLobby(theUnfortunate);
         });
     }
 }

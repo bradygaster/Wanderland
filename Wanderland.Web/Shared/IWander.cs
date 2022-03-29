@@ -1,6 +1,6 @@
 ﻿namespace Wanderland.Web.Shared;
 
-public interface IWander : IDestroyableGrain
+public interface IWander
 {
     Task Wander();
     Task SetLocation(ITileGrain tileGrain);
