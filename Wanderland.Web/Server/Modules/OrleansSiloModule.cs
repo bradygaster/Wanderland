@@ -11,7 +11,6 @@ internal static class OrleansSiloModule
         builder.Host.UseOrleans((siloBuilder) =>
         {
             siloBuilder.UseLocalhostClustering();
-            siloBuilder.UseInMemoryReminderService();
             siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldListStorageName);
             siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.WorldStorageName);
             siloBuilder.AddMemoryGrainStorage(Constants.PersistenceKeys.TileStorageName);
