@@ -5,15 +5,16 @@ namespace Wanderland.Web.Client.Services;
 
 public class WanderlandHubClient : IWanderlandHubClient
 {
+    readonly Uri _baseUri;
+    readonly Uri _hubUri;
+
+    HubConnection? _connection;
+
     public WanderlandHubClient(Uri baseUri)
     {
-        BaseUri = baseUri;
-        HubUri = new Uri($"{BaseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
+        _baseUri = baseUri;
+        _hubUri = new Uri($"{_baseUri.AbsoluteUri}{Constants.Routes.WanderlandSignalRHubRoute}");
     }
-
-    private HubConnection? Connection { get; set; }
-    private Uri BaseUri { get; set; }
-    private Uri HubUri { get; set; }
 
     public event Func<WorldListUpdatedEventArgs, Task> WorldListUpdate;
     public event Func<TileUpdatedEventArgs, Task> TileUpdate;
@@ -24,19 +25,19 @@ public class WanderlandHubClient : IWanderlandHubClient
 
     public async Task Start()
     {
-        Connection = new HubConnectionBuilder()
-            .WithUrl(HubUri)
+        _connection = new HubConnectionBuilder()
+            .WithUrl(_hubUri)
             .WithAutomaticReconnect()
             .Build();
 
-        Connection.On(nameof(WorldListUpdated), WorldListUpdated);
-        Connection.On<Tile>(nameof(TileUpdated), TileUpdated);
-        Connection.On<WorldAgeUpdatedEventArgs>(nameof(WorldAgeUpdated), WorldAgeUpdated);
-        Connection.On<SystemStatusUpdateReceivedEventArgs>(nameof(SystemStatusReceived), SystemStatusReceived);
-        Connection.On<PlayerListUpdatedEventArgs>(nameof(PlayerListUpdated), PlayerListUpdated);
-        Connection.On<PlayerUpdatedEventArgs>(nameof(PlayerUpdated), PlayerUpdated);
+        _connection.On(nameof(WorldListUpdated), WorldListUpdated);
+        _connection.On<Tile>(nameof(TileUpdated), TileUpdated);
+        _connection.On<WorldAgeUpdatedEventArgs>(nameof(WorldAgeUpdated), WorldAgeUpdated);
+        _connection.On<SystemStatusUpdateReceivedEventArgs>(nameof(SystemStatusReceived), SystemStatusReceived);
+        _connection.On<PlayerListUpdatedEventArgs>(nameof(PlayerListUpdated), PlayerListUpdated);
+        _connection.On<PlayerUpdatedEventArgs>(nameof(PlayerUpdated), PlayerUpdated);
 
-        await Connection.StartAsync();
+        await _connection.StartAsync();
     }
 
     public string World { get; set; }
@@ -45,9 +46,9 @@ public class WanderlandHubClient : IWanderlandHubClient
     {
         World = worldName;
 
-        if (Connection is not null)
+        if (_connection is not null)
         {
-            await Connection.SendAsync(nameof(JoinWorld), worldName);
+            await _connection.SendAsync(nameof(JoinWorld), worldName);
         }
     }
 
